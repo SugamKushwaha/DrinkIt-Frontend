@@ -3,6 +3,7 @@ import Navbar from '../Components/layout/Navbar'
 import Footer from '../Components/layout/Footer'
 import HeroSection from '../Components/home/HeroSection'
 import CategorySection from '../Components/home/CategorySection'
+import PopularProducts from '../Components/home/PopularProducts'
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       <Navbar/>
       <HeroSection/>
       <CategorySection/>
+      <PopularProducts/>
       <Footer/>
     </div>
   )

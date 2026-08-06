@@ -6,7 +6,7 @@ const CategorySection = () => {
   return (
     <section className="bg-black py-14">
 
-      <div className="max-w-[1450px] mx-auto">
+      <div className="max-w-[1350px] mx-auto">
 
         <div className="flex items-center justify-center gap-5 mb-10">
 
@@ -20,7 +20,7 @@ const CategorySection = () => {
 
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
           {categoryData.map((item) => (
             <CategoryCard

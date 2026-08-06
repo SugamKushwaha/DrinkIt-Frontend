@@ -1,11 +1,11 @@
-import beer from "../assets/categories/beer.jpg";
-import whisky from "../assets/categories/whisky.jpg";
-import vodka from "../assets/categories/vodka.jpg";
-import wine from "../assets/categories/wine.jpg";
-import rum from "../assets/categories/rum.jpg";
-import gin from "../assets/categories/gin.jpg";
-import chips from "../assets/categories/chips.jpg";
-import namkeen from "../assets/categories/namkeen.jpg";
+import beer from "../assets/categories/beer.png";
+import whisky from "../assets/categories/whisky.png";
+import vodka from "../assets/categories/vodka.png";
+import wine from "../assets/categories/wine.png";
+import rum from "../assets/categories/rum.png";
+import gin from "../assets/categories/gin.png";
+import chips from "../assets/categories/chips.png";
+import snacks from "../assets/categories/snacks.png";
 
 const categoryData = [
   {
@@ -45,8 +45,8 @@ const categoryData = [
   },
   {
     id: 8,
-    title: "Namkeen",
-    image: namkeen,
+    title: "Snacks",
+    image: snacks,
   },
 ];
 
