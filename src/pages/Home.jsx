@@ -4,8 +4,10 @@ import Footer from '../Components/layout/Footer'
 import HeroSection from '../Components/home/HeroSection'
 import CategorySection from '../Components/home/CategorySection'
 import PopularProducts from '../Components/home/PopularProducts'
-import VibeSection from '../Components/vibeSection/VibeSection'
+import ProductShowcase from '../Components/home/ProductShowcase'
 import PairingSection from '../Components/pairing/PairingSection'
+import VibeSection from '../Components/vibeSection/VibeSection'
+import WineSection from '../Components/home/WineSection'
 
 const Home = () => {
   return (
@@ -16,6 +18,8 @@ const Home = () => {
       <PopularProducts/>
       <VibeSection/>
       <PairingSection/>
+      <ProductShowcase/>
+      <WineSection/>
       <Footer/>
     </div>
   )
