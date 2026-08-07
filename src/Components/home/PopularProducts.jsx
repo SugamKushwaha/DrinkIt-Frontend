@@ -6,13 +6,13 @@ const PopularProducts = () => {
   return (
     <section className="bg-black py-5">
 
-      <div className="max-w-[1450px] mx-auto px-5">
+      <div className="max-w-[1400px] mx-auto px-5">
 
         <div className="flex justify-center items-center gap-3 mb-10">
 
           <Flame
             size={34}
-            className="text-orange-500"
+            className="text-orange-400"
             fill="currentColor"
           />
 
