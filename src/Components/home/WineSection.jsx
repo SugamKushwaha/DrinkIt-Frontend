@@ -18,7 +18,7 @@ const WineSection = () => {
   return (
     <section className="bg-black py-8">
 
-      <div className="max-w-[1450px] mx-auto px-5">
+      <div className="max-w-[1500px] mx-auto px-5">
 
         {/* ================= HEADER ================= */}
 
