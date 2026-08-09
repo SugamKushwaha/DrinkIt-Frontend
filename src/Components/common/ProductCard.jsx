@@ -50,7 +50,7 @@ const ProductCard = ({
           <div className="flex justify-between items-center mt-1">
 
             <span className="text-white text-lg font-bold">
-              ${product.price}
+              &#8377; {product.price}
             </span>
 
             {showButton && (

@@ -1,4 +1,4 @@
-import pairings from "../../data/pairings";
+import pairings from "../../../data/pairings";
 import PairingCard from "./PairingCard";
 
 const PairingSection = () => {

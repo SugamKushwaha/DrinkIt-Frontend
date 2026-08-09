@@ -13,6 +13,7 @@ import ProductCard from "../common/ProductCard";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { Link } from "react-router-dom";
 
 const WineSection = () => {
   return (
@@ -45,17 +46,12 @@ const WineSection = () => {
 
             {/* VIEW ALL */}
 
-            <button
-              className="
-                text-yellow-500
-                text-xs
-                font-semibold
-                hover:text-yellow-400
-                transition
-              "
-            >
-              VIEW ALL WINE →
-            </button>
+            <Link
+  to="/shop?category=wine"
+  className="text-yellow-500 text-xs font-semibold"
+>
+  VIEW ALL WINE →
+</Link>
 
 
             {/* LEFT ARROW */}

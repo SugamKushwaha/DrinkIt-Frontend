@@ -1,6 +1,7 @@
 import React from 'react'
 import { ChevronRight, ShoppingBag } from "lucide-react";
 import heroImg from "../../assets/hero-bg.png"
+import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   return (
@@ -31,7 +32,12 @@ const HeroSection = () => {
 
                 <ShoppingBag size={20} />
 
-                SHOP DRINKS
+                <Link
+                    to="/shop"
+                    className="..."
+                  >
+                    SHOP DRINKS
+                  </Link>
 
                 <ChevronRight size={20} />
 

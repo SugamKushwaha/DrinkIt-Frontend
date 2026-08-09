@@ -13,6 +13,7 @@ import SnackCard from "../common/SnackCard";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { Link } from "react-router-dom";
 
 const SnackSection = () => {
   return (
@@ -25,7 +26,9 @@ const SnackSection = () => {
         <div className="flex items-center justify-center mb-5">
 
           <h2 className="text-white text-2xl font-bold uppercase">
-            PERFECT WITH YOUR DRINK
+             <Link className="hover:text-amber-500" to="/shop?category=snacks">
+ PERFECT WITH YOUR DRINK→
+</Link>
           </h2>
 
         </div>

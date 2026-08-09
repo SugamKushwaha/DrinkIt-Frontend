@@ -1,4 +1,4 @@
-import vibes from "../../data/vibes";
+import vibes from "../../../data/vibes";
 import VibeCard from "./VibeCard";
 
 const VibeSection = () => {

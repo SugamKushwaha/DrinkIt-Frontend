@@ -6,6 +6,7 @@ import "swiper/css/navigation";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "./ProductCard";
+import { Link } from "react-router-dom";
 
 const ProductSlider = ({
   title,
@@ -33,15 +34,25 @@ const ProductSlider = ({
 
         <div className="flex items-center gap-3">
 
-          <button className="text-yellow-500 text-sm font-semibold hover:text-yellow-400">
-            VIEW ALL →
-          </button>
+          <Link
+             to="/shop?category=beer"
+             className="text-yellow-500 text-xs font-semibold"
+           >
+             VIEW ALL BEER →
+           </Link>
 
           <button
             className={`${prevClass} w-9 h-9 border border-gray-700 rounded-full flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition`}
           >
             <ChevronLeft size={18} />
           </button>
+
+          <Link
+             to="/shop?category=whisky"
+             className="text-yellow-500 text-xs font-semibold"
+           >
+             VIEW ALL WHISKY →
+           </Link>
 
           <button
             className={`${nextClass} w-9 h-9 border border-gray-700 rounded-full flex items-center justify-center text-white hover:bg-yellow-500 hover:text-black transition`}

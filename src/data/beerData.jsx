@@ -36,9 +36,11 @@ const beerData= [
   {
     id:5,
     name:"Kingfisher",
-    volume:"500ml",
-    price:3.49,
-    image:kingfisher,
+    category: "beer",
+  brand: "Kingfisher",
+  volume: "500ml",
+  price: 299,
+  image: kingfisher,
   },
 ];
 
