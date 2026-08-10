@@ -1,6 +1,7 @@
 import React from 'react'
 import { Search, MapPin, User, ShoppingCart, ChevronDown } from "lucide-react";
 import navLogo from "../../assets/logos/navLogo.png";
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -18,7 +19,7 @@ const Navbar = () => {
           />
 
           <h1 className="border-yellow-300   text-white text-3xl font-bold tracking-wide ">
-            DRINK<span className='text-yellow-500'>IT</span>
+           <Link to="/"> DRINK<span className='text-yellow-500'>IT</span></Link>
           </h1>
         </div>
 

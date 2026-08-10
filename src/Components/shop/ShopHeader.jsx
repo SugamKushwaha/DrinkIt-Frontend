@@ -1,43 +1,77 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const ShopHeader = ({ category }) => {
-  const titles = {
-    all: "Shop All",
-    beer: "Beer",
-    whisky: "Whisky",
-    vodka: "Vodka",
-    wine: "Wine",
-    rum: "Rum",
-    gin: "Gin",
-    snacks: "Snacks",
-  };
+import shopBg from "../../assets/images/shop-bg.png";
 
-  const title = titles[category] || "Shop";
-
+const ShopHeader = () => {
   return (
-    <div className="mb-8">
+    <section className="relative h-[220px] overflow-hidden">
 
-      <p className="text-gray-500 text-sm mb-2">
-        Home / Shop / {title}
-      </p>
+      {/* BACKGROUND */}
+      <div
+        className="
+          absolute
+          inset-0
+          bg-cover
+          bg-right
+          ml-100
+          bg-no-repeat
+        "
+        style={{
+          backgroundImage: `url(${shopBg})`,
+        }}
+      />
 
-      <div className="flex items-end justify-between">
+      {/* DARK OVERLAY */}
+      <div
+        className="
+          absolute
+          inset-0
+          bg-gradient-to-r
+          from-black
+          via-black/80
+          to-black/20
+        "
+      />
 
-        <div>
+      {/* CONTENT */}
+      <div className="relative z-10 max-w-[1450px] mx-auto px-5 py-7">
 
-          <h1 className="text-white text-4xl md:text-5xl font-bold uppercase">
-            {title}
-          </h1>
+        {/* BREADCRUMB */}
+        <div className="flex items-center gap-2 text-xs mb-2">
 
-          <p className="text-gray-400 mt-2">
-            Discover drinks, snacks and party essentials.
-          </p>
+          <Link
+            to="/"
+            className="text-yellow-500 hover:text-yellow-400"
+          >
+            Home
+          </Link>
+
+          <span className="text-gray-500">
+            /
+          </span>
+
+          <span className="text-gray-400">
+            Shop
+          </span>
 
         </div>
 
+
+        {/* TITLE */}
+        <h1 className="text-white text-5xl font-extrabold">
+          SHOP
+        </h1>
+
+
+        {/* DESCRIPTION */}
+        <p className="text-gray-400 text-sm mt-2">
+          Explore our wide range of drinks, snacks and party essentials.
+        </p>
+
       </div>
 
-    </div>
+    </section>
   );
 };
 

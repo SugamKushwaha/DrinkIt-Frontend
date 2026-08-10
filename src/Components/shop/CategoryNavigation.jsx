@@ -1,90 +1,119 @@
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 
 const categories = [
   {
-    id: "all",
     name: "All",
-    icon: "🛍️",
+    slug: "all",
+    icon: "▦",
   },
   {
-    id: "beer",
     name: "Beer",
+    slug: "beer",
     icon: "🍺",
   },
   {
-    id: "whisky",
     name: "Whisky",
+    slug: "whisky",
     icon: "🥃",
   },
   {
-    id: "vodka",
     name: "Vodka",
+    slug: "vodka",
     icon: "🍸",
   },
   {
-    id: "wine",
     name: "Wine",
+    slug: "wine",
     icon: "🍷",
   },
   {
-    id: "rum",
     name: "Rum",
+    slug: "rum",
     icon: "🥃",
   },
   {
-    id: "gin",
     name: "Gin",
+    slug: "gin",
     icon: "🍸",
   },
   {
-    id: "snacks",
     name: "Snacks",
-    icon: "🍿",
+    slug: "snacks",
+    icon: "🍟",
   },
 ];
 
-const CategoryNavigation = ({ selectedCategory, onCategoryChange }) => {
+const CategoryNavigation = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeCategory =
+    searchParams.get("category") || "all";
+
+  const handleCategory = (slug) => {
+    if (slug === "all") {
+      setSearchParams({});
+    } else {
+      setSearchParams({
+        category: slug,
+      });
+    }
+  };
+
   return (
-    <div className="w-full overflow-x-auto scrollbar-hide">
+    <section className="bg-black border-b border-gray-800">
 
-      <div className="flex gap-3 min-w-max pb-2">
+      <div className="max-w-[1450px] mx-auto px-5 py-5">
 
-        {categories.map((category) => {
-          const active = selectedCategory === category.id;
+        <div className="flex gap-3 overflow-x-auto">
 
-          return (
-            <button
-              key={category.id}
-              onClick={() => onCategoryChange(category.id)}
-              className={`
-                flex
-                items-center
-                gap-2
-                px-5
-                py-3
-                rounded-lg
-                border
-                transition
-                whitespace-nowrap
-                ${
-                  active
-                    ? "bg-yellow-500 border-yellow-500 text-black"
-                    : "bg-[#111] border-gray-700 text-gray-300 hover:border-yellow-500 hover:text-yellow-400"
+          {categories.map((category) => {
+            const isActive =
+              activeCategory === category.slug;
+
+            return (
+              <button
+                key={category.slug}
+                onClick={() =>
+                  handleCategory(category.slug)
                 }
-              `}
-            >
-              <span>{category.icon}</span>
+                className={`
+                  min-w-[105px]
+                  h-12
+                  px-5
+                  rounded-md
+                  border
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  text-sm
+                  font-medium
+                  transition
 
-              <span className="font-semibold text-sm uppercase">
-                {category.name}
-              </span>
-            </button>
-          );
-        })}
+                  ${
+                    isActive
+                      ? "border-yellow-500 bg-yellow-500/10 text-yellow-400"
+                      : "border-gray-800 bg-[#0b0b0b] text-gray-300 hover:border-yellow-500 hover:text-yellow-400"
+                  }
+                `}
+              >
+                <span>
+                  {category.icon}
+                </span>
+
+                <span>
+                  {category.name}
+                </span>
+              </button>
+            );
+          })}
+
+        </div>
 
       </div>
 
-    </div>
+    </section>
   );
 };
 

@@ -4,23 +4,24 @@ const SortDropdown = ({ sort, setSort }) => {
   return (
     <div className="flex items-center gap-3">
 
-      <span className="text-gray-500 text-sm hidden sm:block">
-        Sort by
+      <span className="text-gray-400 text-sm">
+        Sort by:
       </span>
 
       <select
         value={sort}
         onChange={(e) => setSort(e.target.value)}
         className="
-          bg-[#111]
+          bg-[#0b0b0b]
           border
           border-gray-700
           text-white
-          text-sm
-          rounded-lg
+          rounded-md
           px-4
-          py-2.5
+          py-2
+          text-sm
           outline-none
+          cursor-pointer
           focus:border-yellow-500
         "
       >
@@ -36,9 +37,10 @@ const SortDropdown = ({ sort, setSort }) => {
           Price: High to Low
         </option>
 
-        <option value="name">
-          Name
+        <option value="rating">
+          Rating
         </option>
+
       </select>
 
     </div>

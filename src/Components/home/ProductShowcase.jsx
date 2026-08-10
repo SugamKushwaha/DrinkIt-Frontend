@@ -12,20 +12,24 @@ const ProductShowcase = () => {
         <div className="grid lg:grid-cols-2 gap-10">
 
           <ProductSlider
-            title="Beer"
-            icon="🍺"
-            products={beerData}
-            prevClass="beer-prev"
-            nextClass="beer-next"
-          />
+             title="BEER"
+             icon="🍺"
+             products={beerData}
+             prevClass="beer-prev"
+             nextClass="beer-next"
+             viewAllText="VIEW ALL BEER"
+             viewAllLink="/shop?category=beer"
+           />
 
           <ProductSlider
-            title="Whisky"
-            icon="🥃"
-            products={whiskyData}
-            prevClass="whisky-prev"
-            nextClass="whisky-next"
-          />
+             title="WHISKY"
+             icon="🥃"
+             products={whiskyData}
+             prevClass="whisky-prev"
+             nextClass="whisky-next"
+             viewAllText="VIEW ALL WHISKY"
+             viewAllLink="/shop?category=whisky"
+           />
 
         </div>
 
