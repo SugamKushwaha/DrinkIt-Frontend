@@ -9,6 +9,7 @@ const products = [
     name: "Kingfisher Premium Beer",
     volume: "500ml",
     price: 3.99,
+     rating: 4.4,
     image: kingfisher,
   },
   {

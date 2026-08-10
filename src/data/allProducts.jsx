@@ -8,6 +8,7 @@ import rumData from "./rumData";
 import ginData from "./ginData";
 import snacksData from "./snacksData";
 
+
 const allProducts = [
   ...products,
 
@@ -19,5 +20,6 @@ const allProducts = [
   ...ginData,
   ...snacksData,
 ];
+
 
 export default allProducts;
