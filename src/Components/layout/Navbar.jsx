@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, MapPin, User, ShoppingCart, ChevronDown } from "lucide-react";
+import { Search, MapPin, User, ShoppingCart, ChevronDown, Heart } from "lucide-react";
 import navLogo from "../../assets/logos/navLogo.png";
 import { Link } from 'react-router-dom';
 
@@ -64,11 +64,20 @@ const Navbar = () => {
       {/* Right Section */}
 
       <div className="flex items-center gap-8">
+        
 
         <button className="flex items-center gap-2 text-white hover:text-yellow-400 transition">
           <User size={18} />
           Login / Signup
         </button>
+
+        <Link
+  to="/wishlist"
+  className="flex items-center gap-2 text-white"
+>
+  <Heart size={21} />
+ 
+</Link>
 
         <button className="relative flex items-center gap-2 text-white hover:text-yellow-600 transition">
           <ShoppingCart size={20} />

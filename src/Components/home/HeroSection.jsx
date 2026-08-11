@@ -47,7 +47,9 @@ const HeroSection = () => {
 
                 <ShoppingBag size={20} />
 
-                SHOP SNACKS
+                <Link to="/shop?category=snacks">
+                  SHOP SNACKS
+                </Link>
 
                 <ChevronRight size={20} />
 
