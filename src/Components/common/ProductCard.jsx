@@ -1,5 +1,12 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import {
+  addToCart,
+  getCart,
+} from "../../utils/cartUtils";
+
 
 const ProductCard = ({
   product,
@@ -9,19 +16,52 @@ const ProductCard = ({
 
   const navigate = useNavigate();
 
-  // ================= PRODUCT CLICK =================
+  const [added, setAdded] = useState(false);
+
+
+  // =====================================================
+  // CHECK IF PRODUCT IS ALREADY IN CART
+  // =====================================================
+
+  useEffect(() => {
+
+    const cart = getCart();
+
+    const exists = cart.some(
+      (item) =>
+        String(item.id) === String(product.id)
+    );
+
+    setAdded(exists);
+
+  }, [product.id]);
+
+
+  // =====================================================
+  // PRODUCT CLICK
+  // =====================================================
 
   const handleProductClick = () => {
+
     navigate(`/product/${product.id}`);
+
   };
 
 
-  // ================= ADD TO CART =================
+  // =====================================================
+  // ADD TO CART
+  // =====================================================
 
   const handleAddToCart = (e) => {
+
+    // VERY IMPORTANT
+    // Prevent product card click
     e.stopPropagation();
 
-    console.log("Add to cart:", product);
+    addToCart(product);
+
+    setAdded(true);
+
   };
 
 
@@ -34,14 +74,19 @@ const ProductCard = ({
         bg-black
         overflow-hidden
         cursor-pointer
-        ${bordered ? "border border-gray-700 rounded-lg" : ""}
+        ${bordered
+          ? "border border-gray-700 rounded-lg"
+          : ""
+        }
         hover:border-gray-500
         transition
         duration-300
       `}
     >
 
-      {/* ================= IMAGE AREA ================= */}
+      {/* =================================================
+          IMAGE
+      ================================================= */}
 
       <div
         className="
@@ -71,70 +116,125 @@ const ProductCard = ({
       </div>
 
 
-      {/* ================= GRAY LINE ================= */}
+      {/* =================================================
+          SEPARATOR
+      ================================================= */}
 
       <div className="border-t border-gray-700">
 
 
-        {/* ================= TEXT AREA ================= */}
+        {/* =================================================
+            PRODUCT INFO
+        ================================================= */}
 
         <div className="bg-black px-3 py-2">
 
 
           {/* NAME */}
 
-          <h3 className="text-white text-[15px] font-medium truncate">
+          <h3
+            className="
+              text-white
+              text-[15px]
+              font-medium
+              truncate
+            "
+          >
             {product.name}
           </h3>
 
 
-          {/* VOLUME / SIZE */}
+          {/* VOLUME */}
 
-          <p className="text-gray-400 text-[13px] mt-1">
+          <p
+            className="
+              text-gray-400
+              text-[13px]
+              mt-1
+            "
+          >
             {product.volume || product.size}
           </p>
 
 
-          {/* ================= PRICE + BUTTON ================= */}
+          {/* =================================================
+              PRICE + BUTTON
+          ================================================= */}
 
-          <div className="flex justify-between items-center mt-2">
+          <div
+            className="
+              flex
+              justify-between
+              items-center
+              mt-2
+            "
+          >
 
-            <span className="text-white text-lg font-bold">
+            {/* PRICE */}
+
+            <span
+              className="
+                text-white
+                text-lg
+                font-bold
+              "
+            >
               ₹ {product.price}
             </span>
 
+
+            {/* ADD BUTTON */}
 
             {showButton && (
 
               <button
                 onClick={handleAddToCart}
-                className="
+                className={`
                   flex
                   items-center
                   gap-1
-                  border
-                  border-yellow-500
-                  text-yellow-500
                   px-3
                   py-1
                   text-sm
                   rounded
-                  hover:bg-yellow-500
-                  hover:text-black
                   transition
-                "
+
+                  ${
+                    added
+                      ? `
+                        bg-green-500
+                        text-black
+                        border
+                        border-green-500
+                      `
+                      : `
+                        border
+                        border-yellow-500
+                        text-yellow-500
+                        hover:bg-yellow-500
+                        hover:text-black
+                      `
+                  }
+                `}
               >
 
-                <ShoppingCart size={15} />
-
-                ADD
+                {added ? (
+                  <>
+                    <Check size={15} />
+                    ADDED
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={15} />
+                    ADD
+                  </>
+                )}
 
               </button>
 
             )}
 
           </div>
-
 
         </div>
 

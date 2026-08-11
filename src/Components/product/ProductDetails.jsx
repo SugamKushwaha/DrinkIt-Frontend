@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 
 import allProducts from "../../data/allProducts";
-import { isWishlisted, toggleWishlist, } from "../../utils/wishlist";
+// import { isWishlisted, toggleWishlist, } from "../../utils/wishlist";
+import { isWishlisted, toggleWishlist } from "../../utils/wishlist";
+import { addToCart, getCart } from "../../utils/cartUtils";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -37,11 +39,16 @@ const ProductDetails = () => {
   // STATES
   // =====================================================
 
+
   const [quantity, setQuantity] = useState(1);
+
 const [wishlist, setWishlist] = useState(() =>
   isWishlisted(id)
 );
-  const [activeTab, setActiveTab] = useState("description");
+
+const [activeTab, setActiveTab] = useState("description");
+
+const [addedToCart, setAddedToCart] = useState(false);
 
 
   const handleWishlist = () => {
@@ -118,13 +125,43 @@ const [wishlist, setWishlist] = useState(() =>
   // =====================================================
 
   const handleAddToCart = () => {
-    console.log("Added to cart:", {
-      product,
-      quantity,
-    });
+  if (!product.inStock) return;
 
-    // Later we will connect this with CartContext
-  };
+  addToCart(product);
+
+  if (quantity > 1) {
+    const cart = getCart();
+
+    const updatedProduct = cart.find(
+      (item) => String(item.id) === String(product.id)
+    );
+
+    if (updatedProduct) {
+      const currentQuantity = updatedProduct.quantity;
+
+      const finalQuantity =
+        currentQuantity + quantity - 1;
+
+      localStorage.setItem(
+        "drinkit-cart",
+        JSON.stringify(
+          cart.map((item) =>
+            String(item.id) === String(product.id)
+              ? {
+                  ...item,
+                  quantity: finalQuantity,
+                }
+              : item
+          )
+        )
+      );
+
+      window.dispatchEvent(new Event("cartUpdated"));
+    }
+  }
+
+  setAddedToCart(true);
+};
 
   // =====================================================
   // BUY NOW
@@ -629,28 +666,38 @@ const [wishlist, setWishlist] = useState(() =>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7">
 
               <button
-                disabled={!product.inStock}
-                onClick={handleAddToCart}
-                className="
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                  bg-yellow-500
-                  text-black
-                  py-4
-                  rounded-lg
-                  font-bold
-                  hover:bg-yellow-400
-                  disabled:opacity-40
-                  disabled:cursor-not-allowed
-                  transition
-                "
-              >
-                <ShoppingCart size={20} />
-
-                ADD TO CART
-              </button>
+  disabled={!product.inStock}
+  onClick={handleAddToCart}
+  className={`
+    flex
+    items-center
+    justify-center
+    gap-2
+    py-4
+    rounded-lg
+    font-bold
+    transition
+    ${
+      addedToCart
+        ? "bg-green-500 text-white hover:bg-green-400"
+        : "bg-yellow-500 text-black hover:bg-yellow-400"
+    }
+    disabled:opacity-40
+    disabled:cursor-not-allowed
+  `}
+>
+  {addedToCart ? (
+    <>
+      <Check size={20} />
+      ADDED TO CART
+    </>
+  ) : (
+    <>
+      <ShoppingCart size={20} />
+      ADD TO CART
+    </>
+  )}
+</button>
 
 
               <button

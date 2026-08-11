@@ -1,51 +1,99 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   Heart,
   ShoppingCart,
   Star,
+  Check,
 } from "lucide-react";
 
+import {
+  addToCart,
+  getCart,
+} from "../../utils/cartUtils";
 
 const ShopProductCard = ({ product }) => {
-
   const navigate = useNavigate();
 
+  // ================================
+  // STATE
+  // ================================
 
-  // ================= PRODUCT DETAILS =================
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  // ================================
+  // CHECK CART ON LOAD
+  // ================================
+
+  useEffect(() => {
+    const checkCart = () => {
+      const cart = getCart();
+
+      const exists = cart.some(
+        (item) =>
+          String(item.id) === String(product.id)
+      );
+
+      setAddedToCart(exists);
+    };
+
+    checkCart();
+
+    // Listen for cart changes
+    window.addEventListener(
+      "cartUpdated",
+      checkCart
+    );
+
+    return () => {
+      window.removeEventListener(
+        "cartUpdated",
+        checkCart
+      );
+    };
+  }, [product.id]);
+
+  // ================================
+  // PRODUCT DETAILS
+  // ================================
 
   const handleProductClick = () => {
-
     navigate(`/product/${product.id}`);
-
   };
 
-
-  // ================= ADD TO CART =================
+  // ================================
+  // ADD TO CART
+  // ================================
 
   const handleAddToCart = (e) => {
-
     e.stopPropagation();
 
-    console.log("Add to cart:", product);
+    if (addedToCart) {
+      navigate("/cart");
+      return;
+    }
 
+    addToCart(product, 1);
+
+    setAddedToCart(true);
   };
 
-
-  // ================= WISHLIST =================
+  // ================================
+  // WISHLIST
+  // ================================
 
   const handleWishlist = (e) => {
-
     e.stopPropagation();
 
     console.log("Wishlist:", product);
-
   };
 
+  // ================================
+  // RETURN
+  // ================================
 
   return (
-
     <div
       onClick={handleProductClick}
       className="
@@ -98,11 +146,8 @@ const ShopProductCard = ({ product }) => {
             transition
           "
         >
-
           <Heart size={18} />
-
         </button>
-
 
         {/* PRODUCT IMAGE */}
 
@@ -122,7 +167,6 @@ const ShopProductCard = ({ product }) => {
 
       </div>
 
-
       {/* ================= INFORMATION ================= */}
 
       <div className="p-3">
@@ -140,13 +184,11 @@ const ShopProductCard = ({ product }) => {
           {product.name}
         </h3>
 
-
         {/* VOLUME */}
 
         <p className="text-gray-400 text-sm mt-1">
           {product.volume}
         </p>
-
 
         {/* RATING */}
 
@@ -171,39 +213,62 @@ const ShopProductCard = ({ product }) => {
 
         </div>
 
-
         {/* PRICE + ADD */}
 
         <div className="flex justify-between items-center mt-4">
+
+          {/* PRICE */}
 
           <span className="text-white text-xl font-bold">
             ₹{product.price}
           </span>
 
+          {/* ADD BUTTON */}
 
           <button
             onClick={handleAddToCart}
-            className="
+            className={`
               flex
               items-center
               gap-2
-              border
-              border-yellow-500
-              text-yellow-400
               rounded-md
               px-4
               py-2
               text-sm
               font-semibold
-              hover:bg-yellow-500
-              hover:text-black
               transition
-            "
+
+              ${
+                addedToCart
+                  ? `
+                    bg-green-500
+                    text-white
+                    border
+                    border-green-500
+                    hover:bg-green-400
+                  `
+                  : `
+                    border
+                    border-yellow-500
+                    text-yellow-400
+                    hover:bg-yellow-500
+                    hover:text-black
+                  `
+              }
+            `}
           >
 
-            <ShoppingCart size={16} />
-
-            ADD
+            {addedToCart ? (
+              <>
+                <Check size={16} />
+                ADDED
+              </>
+            ) : (
+              <>
+                <ShoppingCart size={16} />
+                ADD
+              </>
+            )}
 
           </button>
 
@@ -212,9 +277,7 @@ const ShopProductCard = ({ product }) => {
       </div>
 
     </div>
-
   );
 };
-
 
 export default ShopProductCard;
