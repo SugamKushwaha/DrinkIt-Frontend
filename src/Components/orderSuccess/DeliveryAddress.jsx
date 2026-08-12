@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   MapPin,
   Phone,
@@ -6,7 +7,9 @@ import {
 
 const DeliveryAddress = ({ address }) => {
 
-  if (!address) return null;
+  if (!address) {
+    return null;
+  }
 
   return (
     <div
@@ -51,7 +54,7 @@ const DeliveryAddress = ({ address }) => {
 
       {/* ADDRESS */}
 
-      <div className="ml-0">
+      <div>
 
         <h3 className="font-semibold text-lg">
           {address.name}
@@ -70,6 +73,7 @@ const DeliveryAddress = ({ address }) => {
         </p>
 
         {address.phone && (
+
           <div
             className="
               flex
@@ -86,6 +90,7 @@ const DeliveryAddress = ({ address }) => {
             {address.phone}
 
           </div>
+
         )}
 
       </div>

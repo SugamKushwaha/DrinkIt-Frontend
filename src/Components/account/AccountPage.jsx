@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AccountSidebar from "../../components/account/AccountSidebar";
-import ProfileCard from "../../components/account/ProfileCard";
-import AccountStats from "../../components/account/AccountStats";
-import AccountOverview from "../../components/account/AccountOverview";
-import ReferBanner from "../../components/account/ReferBanner";
+import AccountSidebar from "./AccountSidebar";
+import ProfileCard from "./ProfileCard";
+import AccountStats from "./AccountStats";
+import AccountOverview from "./AccountOverview";
+import ReferBanner from "./ReferBanner";
 
 const AccountPage = () => {
   const navigate = useNavigate();
@@ -68,6 +68,8 @@ const AccountPage = () => {
 
     navigate("/login");
   };
+
+ 
 
   return (
     <div className="min-h-screen bg-black text-white">
