@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import navLogo from "../../assets/logos/navLogo.png";
+import AuthHeader from "./AuthHeader";
 
 const AuthLayout = ({
   title,
@@ -18,29 +19,7 @@ const AuthLayout = ({
           HEADER
       ===================================================== */}
 
-      <header className="h-20 border-b border-neutral-800 flex items-center px-6 md:px-10">
-
-        <Link
-          to="/"
-          className="flex items-center gap-2"
-        >
-
-          <img
-            src={navLogo}
-            alt="DrinkIt"
-            className="w-9 h-12 object-contain"
-          />
-
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
-            DRINK
-            <span className="text-yellow-500">
-              IT
-            </span>
-          </h1>
-
-        </Link>
-
-      </header>
+      <AuthHeader/>
 
 
       {/* =====================================================

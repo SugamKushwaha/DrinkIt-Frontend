@@ -369,6 +369,7 @@ const Navbar = () => {
               text-white
               hover:text-yellow-400
               transition
+              cursor-pointer
             "
           >
 
@@ -401,6 +402,7 @@ const Navbar = () => {
             text-white
             hover:text-yellow-400
             transition
+            cursor-pointer
           "
         >
 
@@ -425,6 +427,7 @@ const Navbar = () => {
             text-white
             hover:text-yellow-600
             transition
+            cursor-pointer
           "
         >
 
