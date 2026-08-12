@@ -25,7 +25,7 @@ const Checkout = () => {
       id: 1,
       type: "HOME",
       name: "Sugam Kushwaha",
-      address: "123, Govind Nagar, Kanpur",
+      address: "124, Govind Nagar, Kanpur",
       city: "Uttar Pradesh - 208006",
       country: "India",
       default: true,

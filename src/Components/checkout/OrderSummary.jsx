@@ -292,7 +292,7 @@ const {
           pb-5
         ">
 
-          <button
+          <button 
             onClick={onPlaceOrder}
             className="
               w-full

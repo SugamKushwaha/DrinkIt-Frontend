@@ -7,6 +7,8 @@ import {
   ShoppingCart,
   ChevronDown,
   Heart,
+  LogOut,
+  UserCircle,
 } from "lucide-react";
 
 import navLogo from "../../assets/logos/navLogo.png";
@@ -20,25 +22,111 @@ import {
   getCartCount,
 } from "../../utils/cartUtils";
 
-
 const Navbar = () => {
 
   const navigate = useNavigate();
+
+  // =====================================================
+  // CART
+  // =====================================================
 
   const [cartCount, setCartCount] = useState(
     getCartCount()
   );
 
+  // =====================================================
+  // USER
+  // =====================================================
+
+  const [user, setUser] = useState(null);
+
 
   // =====================================================
-  // UPDATE CART COUNT
+  // LOAD USER
+  // =====================================================
+
+  const loadUser = () => {
+
+    try {
+
+      const storedUser =
+        localStorage.getItem("drinkit-user");
+
+      if (storedUser) {
+
+        setUser(
+          JSON.parse(storedUser)
+        );
+
+      } else {
+
+        setUser(null);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Failed to load user",
+        error
+      );
+
+      setUser(null);
+    }
+  };
+
+
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
+
+  useEffect(() => {
+
+    loadUser();
+
+  }, []);
+
+
+  // =====================================================
+  // LISTEN FOR AUTH CHANGES
+  // =====================================================
+
+  useEffect(() => {
+
+    const handleAuthUpdate = () => {
+
+      loadUser();
+
+    };
+
+    window.addEventListener(
+      "authUpdated",
+      handleAuthUpdate
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "authUpdated",
+        handleAuthUpdate
+      );
+
+    };
+
+  }, []);
+
+
+  // =====================================================
+  // CART UPDATE
   // =====================================================
 
   useEffect(() => {
 
     const updateCartCount = () => {
 
-      setCartCount(getCartCount());
+      setCartCount(
+        getCartCount()
+      );
 
     };
 
@@ -57,6 +145,25 @@ const Navbar = () => {
     };
 
   }, []);
+
+
+  // =====================================================
+  // LOGOUT
+  // =====================================================
+
+  const handleLogout = () => {
+
+    localStorage.removeItem(
+      "drinkit-user"
+    );
+
+    window.dispatchEvent(
+      new Event("authUpdated")
+    );
+
+    navigate("/");
+
+  };
 
 
   return (
@@ -79,7 +186,6 @@ const Navbar = () => {
       ================================================= */}
 
       <div className="flex items-center gap-8">
-
 
         {/* LOGO */}
 
@@ -106,10 +212,13 @@ const Navbar = () => {
               tracking-wide
             "
           >
+
             DRINK
+
             <span className="text-yellow-500">
               IT
             </span>
+
           </h1>
 
         </Link>
@@ -185,9 +294,7 @@ const Navbar = () => {
 
         <input
           type="text"
-          placeholder="
-            Search for drinks, snacks & more...
-          "
+          placeholder="Search for drinks, snacks & more..."
           className="
             w-full
             bg-neutral-900
@@ -218,9 +325,75 @@ const Navbar = () => {
         "
       >
 
-        {/* LOGIN */}
+        {/* =================================================
+            AUTH
+        ================================================= */}
+
+        {!user ? (
+
+          /* LOGIN / SIGNUP */
+
+          <button
+            onClick={() =>
+              navigate("/login")
+            }
+            className="
+              flex
+              items-center
+              gap-2
+              text-white
+              hover:text-yellow-400
+              transition
+            "
+          >
+
+            <User size={18} />
+
+            Login / Signup
+
+          </button>
+
+        ) : (
+
+          /* PROFILE */
+
+          <button
+            onClick={() =>
+              navigate("/profile")
+            }
+            title={user.name}
+            className="
+              flex
+              items-center
+              gap-2
+              text-white
+              hover:text-yellow-400
+              transition
+            "
+          >
+
+            <UserCircle
+              size={26}
+              className="text-yellow-400"
+            />
+
+            <span className="hidden lg:block">
+              {user.name?.split(" ")[0]}
+            </span>
+
+          </button>
+
+        )}
+
+
+        {/* =================================================
+            WISHLIST
+        ================================================= */}
 
         <button
+          onClick={() =>
+            navigate("/wishlist")
+          }
           className="
             flex
             items-center
@@ -231,35 +404,19 @@ const Navbar = () => {
           "
         >
 
-          <User size={18} />
-
-          Login / Signup
+          <Heart size={18} />
 
         </button>
 
 
-        <button
-          className="
-            flex
-            items-center
-            gap-2
-            text-white
-            hover:text-yellow-400
-            transition
-          "
-        >
-          <Link to="/wishlist">
-          <Heart size={18}/>
-          </Link>
-        </button>
-
-
-          
-
-        {/* CART */}
+        {/* =================================================
+            CART
+        ================================================= */}
 
         <button
-          onClick={() => navigate("/cart")}
+          onClick={() =>
+            navigate("/cart")
+          }
           className="
             relative
             flex
@@ -297,7 +454,9 @@ const Navbar = () => {
                 font-bold
               "
             >
+
               {cartCount}
+
             </span>
 
           )}
@@ -307,9 +466,7 @@ const Navbar = () => {
       </div>
 
     </nav>
-
   );
-
 };
 
 export default Navbar;

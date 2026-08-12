@@ -1,15 +1,121 @@
-import React from "react";
-import { ShoppingCart } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  ShoppingCart,
+  Check,
+} from "lucide-react";
+
+import {
+  addToCart,
+  getCart,
+} from "../../utils/cartUtils";
 
 const SnackCard = ({ product }) => {
-  return (
-    <div className="w-full h-[130px] bg-[#0e0d07] border border-gray-700 rounded-md overflow-hidden hover:border-yellow-500 transition duration-300">
 
-      {/* CARD CONTENT */}
+  // =====================================================
+  // CART STATE
+  // =====================================================
+
+  const [added, setAdded] = useState(false);
+
+  // =====================================================
+  // CHECK WHETHER PRODUCT IS ALREADY IN CART
+  // =====================================================
+
+  const checkCart = () => {
+
+    const cart = getCart();
+
+    const exists = cart.some(
+      (item) =>
+        String(item.id) === String(product.id)
+    );
+
+    setAdded(exists);
+  };
+
+  // =====================================================
+  // CHECK ON COMPONENT LOAD
+  // =====================================================
+
+  useEffect(() => {
+
+    checkCart();
+
+    window.addEventListener(
+      "cartUpdated",
+      checkCart
+    );
+
+    return () => {
+      window.removeEventListener(
+        "cartUpdated",
+        checkCart
+      );
+    };
+
+  }, [product.id]);
+
+  // =====================================================
+  // ADD TO CART
+  // =====================================================
+
+  const handleAddToCart = () => {
+
+    // Already added
+    if (added) {
+      return;
+    }
+
+    // Add product
+    addToCart(product);
+
+    // Change button
+    setAdded(true);
+
+  };
+
+  // =====================================================
+  // UI
+  // =====================================================
+
+  return (
+
+    <div
+      className="
+        w-full
+        h-[130px]
+        bg-[#0e0d07]
+        border
+        border-gray-700
+        rounded-md
+        overflow-hidden
+        hover:border-yellow-500
+        transition
+        duration-300
+      "
+    >
+
+      {/* =================================================
+          CARD CONTENT
+      ================================================= */}
+
       <div className="flex h-full">
 
-        {/* IMAGE */}
-        <div className="w-[65%] h-full bg-[#0e0d07] flex items-center justify-center overflow-hidden">
+        {/* =================================================
+            IMAGE
+        ================================================= */}
+
+        <div
+          className="
+            w-[65%]
+            h-full
+            bg-[#0e0d07]
+            flex
+            items-center
+            justify-center
+            overflow-hidden
+          "
+        >
 
           <img
             src={product.image}
@@ -27,43 +133,109 @@ const SnackCard = ({ product }) => {
 
         </div>
 
-        {/* DETAILS */}
-        <div className="w-[55%] px-2 py-1 flex flex-col justify-between">
+        {/* =================================================
+            DETAILS
+        ================================================= */}
 
-          {/* NAME */}
-          <h3 className="text-white text-[14px] font-medium leading-tight line-clamp-2">
+        <div
+          className="
+            w-[55%]
+            px-2
+            py-1
+            flex
+            flex-col
+            justify-between
+          "
+        >
+
+          {/* =================================================
+              NAME
+          ================================================= */}
+
+          <h3
+            className="
+              text-white
+              text-[14px]
+              font-medium
+              leading-tight
+              line-clamp-2
+            "
+          >
             {product.name}
           </h3>
 
-          {/* PRICE + BUTTON */}
+          {/* =================================================
+              PRICE
+          ================================================= */}
+
           <div className="flex items-center justify-between gap-1">
 
-            <span className="text-white text-[18px] font-semibold">
+            <span
+              className="
+                text-white
+                text-[18px]
+                font-semibold
+              "
+            >
               ₹ {product.price}
             </span>
+
           </div>
+
+          {/* =================================================
+              ADD TO CART BUTTON
+          ================================================= */}
+
           <div>
+
             <button
-              className="
+              onClick={handleAddToCart}
+              disabled={added}
+              className={`
                 flex
                 items-center
+                justify-center
                 gap-2
                 border
-                border-yellow-500
-                text-yellow-500
                 px-5
                 py-[6px]
                 rounded
                 text-[12px]
                 font-semibold
-                hover:bg-yellow-500
-                hover:text-black
                 transition
-              "
+
+                ${
+                  added
+                    ? `
+                      border-green-500
+                      bg-green-500
+                      text-black
+                      cursor-default
+                    `
+                    : `
+                      border-yellow-500
+                      text-yellow-500
+                      hover:bg-yellow-500
+                      hover:text-black
+                    `
+                }
+              `}
             >
-              <ShoppingCart size={18} />
-              ADD
+
+              {added ? (
+                <>
+                  <Check size={17} />
+                  ADDED
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={18} />
+                  ADD
+                </>
+              )}
+
             </button>
+
           </div>
 
         </div>
@@ -71,6 +243,7 @@ const SnackCard = ({ product }) => {
       </div>
 
     </div>
+
   );
 };
 
