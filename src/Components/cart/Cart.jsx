@@ -19,6 +19,7 @@ import {
   removeFromCart,
   updateCartQuantity,
 } from "../../utils/cartUtils";
+import { calculateCartTotals } from "../../utils/priceUtils";
 
 import { useNavigate } from "react-router-dom";
 
@@ -87,35 +88,42 @@ const CartPage = () => {
   // SUBTOTAL
   // =====================================================
 
-  const subtotal = cart.reduce(
-    (sum, item) =>
-      sum + Number(item.price || 0) * item.quantity,
-    0
-  );
+  const {
+  subtotal,
+  deliveryFee,
+  discount,
+  total,
+} = calculateCartTotals(cart);
+
+  // const subtotal = cart.reduce(
+  //   (sum, item) =>
+  //     sum + Number(item.price || 0) * item.quantity,
+  //   0
+  // );
 
   // =====================================================
   // DELIVERY FEE
   // =====================================================
 
-  const deliveryFee = subtotal >= 999 ? 0 : 50;
+  // const deliveryFee = subtotal >= 999 ? 0 : 50;
 
   // =====================================================
   // DISCOUNT
   // =====================================================
 
-  const discount =
-    subtotal >= 3000
-      ? Math.round(subtotal * 0.05)
-      : 0;
+  // const discount =
+  //   subtotal >= 3000
+  //     ? Math.round(subtotal * 0.05)
+  //     : 0;
 
   // =====================================================
   // FINAL TOTAL
   // =====================================================
 
-  const total =
-    subtotal +
-    deliveryFee -
-    discount;
+  // const total =
+  //   subtotal +
+  //   deliveryFee -
+  //   discount;
 
   // =====================================================
   // FORMAT PRICE

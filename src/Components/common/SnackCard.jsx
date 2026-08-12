@@ -39,7 +39,7 @@ const SnackCard = ({ product }) => {
           <div className="flex items-center justify-between gap-1">
 
             <span className="text-white text-[18px] font-semibold">
-              ${product.price}
+              ₹ {product.price}
             </span>
           </div>
           <div>
