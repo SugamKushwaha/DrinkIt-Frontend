@@ -18,6 +18,30 @@ const OrderSuccess = () => {
   const [order, setOrder] = useState(null);
 
   // =====================================================
+  // CREATE DELIVERY TIME
+  // 30 MINUTES AFTER ORDER
+  // =====================================================
+
+  const calculateDeliveryTime = (orderTime) => {
+    const orderDate = new Date(orderTime);
+
+    // If orderTime is invalid, use current time
+    if (isNaN(orderDate.getTime())) {
+      orderDate.setTime(Date.now());
+    }
+
+    // Add 30 minutes
+    orderDate.setMinutes(orderDate.getMinutes() + 30);
+
+    // Format time according to user's local time
+    return orderDate.toLocaleTimeString("en-IN", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  // =====================================================
   // LOAD ORDER
   // =====================================================
 
@@ -35,49 +59,134 @@ const OrderSuccess = () => {
       const parsedOrder = JSON.parse(storedOrder);
 
       console.log(
-        "ORDER FROM ORDER SUCCESS:",
+        "ORIGINAL ORDER:",
         parsedOrder
+      );
+
+      // =================================================
+      // GET ORDER TIME
+      // =================================================
+
+      const orderTime =
+        parsedOrder.createdAt ||
+        parsedOrder.orderTime ||
+        parsedOrder.createdDate ||
+        new Date().toISOString();
+
+      // =================================================
+      // CALCULATE DELIVERY TIME
+      // 30 MINUTES AFTER ORDER
+      // =================================================
+
+      const deliveryTime =
+        calculateDeliveryTime(orderTime);
+
+      // =================================================
+      // CREATE UPDATED ORDER
+      // =================================================
+
+      const updatedOrder = {
+        ...parsedOrder,
+
+        // Keep exact order creation time
+        createdAt: orderTime,
+
+        // Delivery is exactly 30 minutes after order
+        deliveryTime: deliveryTime,
+
+        // Optional readable delivery text
+        estimatedDelivery: deliveryTime,
+
+        // Default status
+        status: parsedOrder.status || "CONFIRMED",
+      };
+
+      console.log(
+        "UPDATED ORDER:",
+        updatedOrder
       );
 
       // =================================================
       // SET CURRENT ORDER
       // =================================================
 
-      setOrder(parsedOrder);
+      setOrder(updatedOrder);
 
       // =================================================
-      // SAVE ORDER TO MY ORDERS
+      // SAVE UPDATED LAST ORDER
+      // =================================================
+
+      localStorage.setItem(
+        "drinkit-last-order",
+        JSON.stringify(updatedOrder)
+      );
+
+      // =================================================
+      // SAVE TO MY ORDERS
       // =================================================
 
       const existingOrders = JSON.parse(
-        localStorage.getItem("drinkit-orders") || "[]"
+        localStorage.getItem(
+          "drinkit-orders"
+        ) || "[]"
       );
 
-      // Check if this order already exists
-      const orderAlreadyExists = existingOrders.some(
-        (existingOrder) =>
-          String(existingOrder.id) ===
-          String(parsedOrder.id)
-      );
+      // =================================================
+      // CHECK IF ORDER ALREADY EXISTS
+      // =================================================
 
-      // Add only if it doesn't already exist
-      if (!orderAlreadyExists) {
-        const updatedOrders = [
-          parsedOrder,
+      const orderAlreadyExists =
+        existingOrders.some(
+          (existingOrder) =>
+            String(existingOrder.id) ===
+            String(updatedOrder.id)
+        );
+
+      let updatedOrders;
+
+      if (orderAlreadyExists) {
+
+        // =================================================
+        // UPDATE EXISTING ORDER
+        // =================================================
+
+        updatedOrders =
+          existingOrders.map(
+            (existingOrder) =>
+              String(existingOrder.id) ===
+              String(updatedOrder.id)
+                ? updatedOrder
+                : existingOrder
+          );
+
+      } else {
+
+        // =================================================
+        // ADD NEW ORDER
+        // =================================================
+
+        updatedOrders = [
+          updatedOrder,
           ...existingOrders,
         ];
-
-        localStorage.setItem(
-          "drinkit-orders",
-          JSON.stringify(updatedOrders)
-        );
-
-        console.log(
-          "ORDER SAVED TO MY ORDERS:",
-          updatedOrders
-        );
       }
+
+      // =================================================
+      // SAVE ORDERS
+      // =================================================
+
+      localStorage.setItem(
+        "drinkit-orders",
+        JSON.stringify(updatedOrders)
+      );
+
+      console.log(
+        "ORDERS SAVED:",
+        updatedOrders
+      );
+
     } catch (error) {
+
       console.error(
         "Failed to load order:",
         error
@@ -85,6 +194,7 @@ const OrderSuccess = () => {
 
       navigate("/shop");
     }
+
   }, [navigate]);
 
   // =====================================================
@@ -117,6 +227,7 @@ const OrderSuccess = () => {
         lg:px-10
       "
     >
+
       <div className="mx-auto max-w-[1100px]">
 
         {/* =================================================
@@ -125,11 +236,7 @@ const OrderSuccess = () => {
 
         <SuccessHeader
           orderId={order.id}
-          deliveryTime={
-            order.deliveryTime ||
-            order.estimatedDelivery ||
-            "20 - 30 minutes"
-          }
+          deliveryTime={order.deliveryTime}
         />
 
         {/* =================================================
@@ -178,16 +285,23 @@ const OrderSuccess = () => {
             "
           >
 
-            {/* PRICE */}
+            {/* =================================================
+                PRICE
+            ================================================= */}
 
             <OrderPriceSummary
-              subtotal={Number(order.subtotal || 0)}
+              subtotal={Number(
+                order.subtotal || 0
+              )}
+
               deliveryFee={Number(
                 order.deliveryFee || 0
               )}
+
               discount={Number(
                 order.discount || 0
               )}
+
               total={Number(
                 order.total || 0
               )}
@@ -218,9 +332,11 @@ const OrderSuccess = () => {
                 hover:bg-yellow-300
               "
             >
+
               <Package size={19} />
 
               TRACK ORDER
+
             </button>
 
             {/* =================================================
@@ -248,9 +364,11 @@ const OrderSuccess = () => {
                 hover:text-black
               "
             >
+
               <Package size={19} />
 
               MY ORDERS
+
             </button>
 
             {/* =================================================
@@ -279,9 +397,11 @@ const OrderSuccess = () => {
                 hover:text-black
               "
             >
+
               <ShoppingBag size={19} />
 
               CONTINUE SHOPPING
+
             </button>
 
           </div>
@@ -297,6 +417,7 @@ const OrderSuccess = () => {
         </div>
 
       </div>
+
     </div>
   );
 };

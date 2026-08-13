@@ -14,6 +14,7 @@ import {
   User,
   MessageCircle,
   Navigation,
+  User2,
 } from "lucide-react";
 
 const TrackOrder = () => {
@@ -208,13 +209,13 @@ const TrackOrder = () => {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#f8f8f6] text-gray-900">
+    <div className="min-h-screen bg-black text-gray-900">
 
       {/* =====================================================
           HEADER
       ====================================================== */}
 
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-black/95 backdrop-blur">
         <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
 
           {/* LEFT */}
@@ -222,13 +223,13 @@ const TrackOrder = () => {
           <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-100"
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-gray-300 transition hover:bg-gray-400"
             >
-              <ArrowLeft size={19} />
+              <ArrowLeft size={19}  />
             </button>
 
             <div>
-              <h1 className="text-lg font-bold sm:text-xl">
+              <h1 className="text-lg font-bold text-amber-600 sm:text-xl">
                 Track Order
               </h1>
 
@@ -242,7 +243,7 @@ const TrackOrder = () => {
 
           <button
             onClick={() => navigate("/shop")}
-            className="hidden items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 sm:flex"
+            className="hidden items-center gap-2 cursor-pointer rounded-full bg-amber-600 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-500 sm:flex"
           >
             <ShoppingBag size={17} />
             Continue Shopping
@@ -260,7 +261,7 @@ const TrackOrder = () => {
             DELIVERY HERO
         ================================================== */}
 
-        <section className="relative mb-6 overflow-hidden rounded-[28px] bg-black text-white">
+        <section className="relative mb-6 overflow-hidden border-2 border-gray-400 rounded-[28px] bg-black text-white">
 
           {/* Decorative circles */}
 
@@ -293,7 +294,7 @@ const TrackOrder = () => {
                   </div>
                 </div>
 
-                <h2 className="max-w-xl text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                <h2 className="max-w-xl text-2xl font-bold text-amber-500 tracking-tight sm:text-3xl lg:text-4xl">
                   {currentStatus === "DELIVERED"
                     ? "Your order has arrived! 🍻"
                     : currentStatus === "OUT_FOR_DELIVERY"
@@ -361,17 +362,17 @@ const TrackOrder = () => {
                 ORDER STATUS
             ================================================== */}
 
-            <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+            <section className="rounded-[28px] border border-gray-400 bg-black p-5 shadow-sm sm:p-7">
 
               <div className="mb-8">
                 <div className="flex items-center justify-between">
 
                   <div>
-                    <h2 className="text-xl font-bold">
+                    <h2 className="text-xl text-amber-500 font-bold">
                       Order Status
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-200">
                       Follow your order's journey
                     </p>
                   </div>
@@ -421,10 +422,10 @@ const TrackOrder = () => {
                         <div
                           className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${
                             completed
-                              ? "border-black bg-black text-white"
+                              ? "border-gray-100 bg-gray-200 text-black"
                               : active
-                              ? "border-black bg-white text-black ring-4 ring-gray-100"
-                              : "border-gray-200 bg-white text-gray-300"
+                              ? "border-black bg-gray-300 text-black ring-4 ring-gray-100"
+                              : "border-gray-200 bg-white text-black"
                           }`}
                         >
                           {completed ? (
@@ -443,8 +444,8 @@ const TrackOrder = () => {
                             <h3
                               className={`text-sm font-semibold sm:text-base ${
                                 active || completed
-                                  ? "text-gray-900"
-                                  : "text-gray-400"
+                                  ? "text-gray-300"
+                                  : "text-gray-100"
                               }`}
                             >
                               {step.title}
@@ -479,16 +480,16 @@ const TrackOrder = () => {
                 YOUR ORDER
             ================================================== */}
 
-            <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+            <section className="rounded-[28px] border border-gray-200 bg-black p-5 shadow-sm sm:p-7">
 
               <div className="mb-6 flex items-center justify-between">
 
                 <div>
-                  <h2 className="text-xl font-bold">
+                  <h2 className="text-xl text-amber-500 font-bold">
                     Your Order
                   </h2>
 
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-300">
                     {totalItems} products
                   </p>
                 </div>
@@ -525,7 +526,7 @@ const TrackOrder = () => {
 
                         {/* IMAGE */}
 
-                        <div className="flex h-[82px] w-[82px] shrink-0 items-center justify-center rounded-2xl bg-[#f7f7f5] p-2">
+                        <div className="flex h-[82px] w-[82px] shrink-0 items-center justify-center rounded-2xl bg-[#333331] p-2">
 
                           {item.image ? (
                             <img
@@ -551,12 +552,12 @@ const TrackOrder = () => {
 
                           <div className="flex justify-between gap-3">
 
-                            <h3 className="line-clamp-2 text-sm font-semibold sm:text-base">
+                            <h3 className="line-clamp-2 text-sm text-white font-semibold sm:text-base">
                               {item.name ||
                                 "DrinkIt Product"}
                             </h3>
 
-                            <span className="shrink-0 text-sm font-semibold sm:text-base">
+                            <span className="shrink-0 text-sm font-semibold text-gray-300 sm:text-base">
                               ₹
                               {(
                                 price * quantity
@@ -567,14 +568,14 @@ const TrackOrder = () => {
                           </div>
 
                           {item.volume && (
-                            <p className="mt-1 text-xs uppercase tracking-wide text-gray-400">
+                            <p className="mt-1 text-xs uppercase tracking-wide text-gray-300">
                               {item.volume}
                             </p>
                           )}
 
                           <div className="mt-3 flex items-center justify-between">
 
-                            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                            <span className="rounded-full bg-gray-300 px-2.5 py-1 text-xs font-medium text-gray-900">
                               Qty: {quantity}
                             </span>
 
@@ -599,7 +600,7 @@ const TrackOrder = () => {
                 DIRECTLY UNDER YOUR ORDER
             ================================================== */}
 
-            <section className="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm">
+            <section className="overflow-hidden rounded-[28px] border border-amber-500 bg-gray shadow-sm">
 
               {/* HEADER */}
 
@@ -608,17 +609,17 @@ const TrackOrder = () => {
                 <div className="flex items-center justify-between">
 
                   <div>
-                    <h2 className="text-xl font-bold">
+                    <h2 className="text-xl text-amber-500 font-bold">
                       Delivery Partner
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-300">
                       Your order is being delivered by
                     </p>
                   </div>
 
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
-                    <Truck size={18} />
+                    <Truck size={30} color="yellow" />
                   </div>
                 </div>
               </div>
@@ -633,7 +634,7 @@ const TrackOrder = () => {
 
                   <div className="flex items-center gap-4">
 
-                    <div className="relative flex h-[68px] w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 ring-4 ring-gray-50">
+                    <div className="relative flex h-[68px] w-[68px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 ring-4 ring-yellow-700 ">
 
                       {deliveryPartner.image ? (
                         <img
@@ -646,9 +647,9 @@ const TrackOrder = () => {
                           }}
                         />
                       ) : (
-                        <User
+                        <User2
                           size={28}
-                          className="text-gray-600"
+                          color="black"
                         />
                       )}
                     </div>
@@ -657,11 +658,11 @@ const TrackOrder = () => {
 
                       <div className="flex flex-wrap items-center gap-2">
 
-                        <h3 className="text-base font-bold">
+                        <h3 className="text-base text-white font-bold">
                           {deliveryPartner.name}
                         </h3>
 
-                        <span className="rounded-full bg-green-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-green-700">
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-green-900">
                           {currentStatus === "DELIVERED"
                             ? "Delivered"
                             : "On the way"}
@@ -670,7 +671,7 @@ const TrackOrder = () => {
 
                       <div className="mt-1.5 flex items-center gap-2 text-sm">
 
-                        <span className="font-semibold">
+                        <span className="font-semibold text-gray-300">
                           ★ {deliveryPartner.rating}
                         </span>
 
@@ -678,13 +679,13 @@ const TrackOrder = () => {
                           •
                         </span>
 
-                        <span className="text-gray-500">
+                        <span className="text-gray-400">
                           {deliveryPartner.vehicle}
                         </span>
                       </div>
 
                       {deliveryPartner.vehicleNumber && (
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-amber-500">
                           Vehicle:{" "}
                           {deliveryPartner.vehicleNumber}
                         </p>
@@ -698,7 +699,7 @@ const TrackOrder = () => {
 
                     <a
                       href={`tel:${deliveryPartner.phone}`}
-                      className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:border-black hover:bg-black hover:text-white"
+                      className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-400 border-2 border-amber-500 transition hover:border-black hover:bg-gray-800 hover:text-white"
                       title="Call Delivery Partner"
                     >
                       <Phone size={18} />
@@ -710,7 +711,7 @@ const TrackOrder = () => {
                           "Chat functionality will be connected later."
                         )
                       }
-                      className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:border-black hover:bg-black hover:text-white"
+                      className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-amber-500 bg-amber-400 transition hover:border-black hover:bg-gray-800 hover:text-white"
                       title="Chat with Delivery Partner"
                     >
                       <MessageCircle size={18} />
@@ -722,32 +723,32 @@ const TrackOrder = () => {
 
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
 
-                  <div className="rounded-2xl bg-[#f7f7f5] p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                  <div className="rounded-2xl bg-[#0a0a0a] border border-amber-500 p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
                       Rating
                     </p>
 
-                    <p className="mt-1 text-sm font-bold">
+                    <p className="mt-1 text-sm  text-gray-200 font-bold">
                       ★ {deliveryPartner.rating}
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-[#f7f7f5] p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                  <div className="rounded-2xl border border-amber-500 bg-[#0a0a0a] p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
                       Vehicle
                     </p>
 
-                    <p className="mt-1 text-sm font-bold">
+                    <p className="mt-1 text-sm text-gray-200 font-bold">
                       {deliveryPartner.vehicle}
                     </p>
                   </div>
 
-                  <div className="col-span-2 rounded-2xl bg-[#f7f7f5] p-4 sm:col-span-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                  <div className="col-span-2 border border-amber-500 rounded-2xl bg-[#0a0a0a] p-4 sm:col-span-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">
                       Deliveries
                     </p>
 
-                    <p className="mt-1 text-sm font-bold">
+                    <p className="mt-1 text-gray-200 text-sm font-bold">
                       {deliveryPartner.deliveries
                         ? `${deliveryPartner.deliveries}+`
                         : "1000+"}
@@ -758,18 +759,18 @@ const TrackOrder = () => {
                 {/* PHONE */}
 
                 {deliveryPartner.phone && (
-                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-gray-100 px-4 py-3">
+                  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-500 px-4 py-3">
 
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-white">
                       <Phone size={15} />
                     </div>
 
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-gray-400">
+                      <p className="text-[10px] uppercase tracking-wider text-white">
                         Contact Delivery Partner
                       </p>
 
-                      <p className="text-sm font-semibold">
+                      <p className="text-sm text-gray-200 font-semibold">
                         {deliveryPartner.phone}
                       </p>
                     </div>

@@ -16,6 +16,11 @@ import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './Components/account/OrdersPage';
 import AddressPage from './pages/AddressPage';
 import TrackOrders from './Components/orderSuccess/TrackOrder';
+import VendorDash from './pages/vendor/VendorDash';
+import VendorOrdersPage from './pages/vendor/VendorOrdersPage';
+import VendorProductsPage from './pages/vendor/VendorProductsPage';
+import VendorOrderDetails from './Components/vendor/order/VendorOrderDetails';
+import VendorOrderDetailsPage from './pages/vendor/VendorOrderDetailsPage';
 
 function App() {
   return (
@@ -34,6 +39,14 @@ function App() {
          <Route path="/orders" element={<MyOrders />} />
          <Route path="/account/addresses" element={<AddressPage/>}/>
          <Route path="/track-order/:orderId"element={<TrackOrders />}/>
+
+
+         {/* ----Vendor Routs---- */}
+
+         <Route path="/vendor" element={<VendorDash />} />
+         <Route path="/vendor/orders" element={<VendorOrdersPage />} />
+         <Route path="/vendor/orders/:orderId" element={<VendorOrderDetailsPage />} />
+         <Route path="/vendor/products" element={<VendorProductsPage />} />
       </Routes>
     </BrowserRouter>
   );
