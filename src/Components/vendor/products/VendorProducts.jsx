@@ -9,9 +9,18 @@ import {
   EyeOff,
 } from "lucide-react";
 
+
+import ProductFormModal from "../products/ProductFormModal";
+
 const VendorProducts = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("ALL");
+
+  const [showProductModal, setShowProductModal] =
+  useState(false);
+
+const [editingProduct, setEditingProduct] =
+  useState(null);
 
   const [products, setProducts] = useState([
     {
@@ -65,6 +74,42 @@ const VendorProducts = () => {
       image: "/images/products/lays.png",
     },
   ]);
+
+  // =====================================================
+// ADD / UPDATE PRODUCT
+// =====================================================
+
+const handleSaveProduct = (productData) => {
+  // EDIT PRODUCT
+  if (editingProduct) {
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === editingProduct.id
+          ? {
+              ...productData,
+              id: editingProduct.id,
+            }
+          : product
+      )
+    );
+
+    setEditingProduct(null);
+
+    return;
+  }
+
+  // ADD PRODUCT
+
+  const newProduct = {
+    ...productData,
+    id: Date.now(),
+  };
+
+  setProducts((prev) => [
+    newProduct,
+    ...prev,
+  ]);
+};
 
   // =====================================================
   // DELETE PRODUCT
@@ -177,21 +222,25 @@ const VendorProducts = () => {
           </div>
 
           <button
-            className="
-              flex
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-yellow-400
-              px-5
-              py-3
-              font-bold
-              text-black
-              transition
-              hover:bg-yellow-300
-            "
-          >
+  onClick={() => {
+    setEditingProduct(null);
+    setShowProductModal(true);
+  }}
+  className="
+    flex
+    items-center
+    justify-center
+    gap-2
+    rounded-xl
+    bg-yellow-400
+    px-5
+    py-3
+    font-bold
+    text-black
+    transition
+    hover:bg-yellow-300
+  "
+>
             <Plus size={19} />
 
             ADD PRODUCT
@@ -534,20 +583,24 @@ const VendorProducts = () => {
                   <div className="flex items-center gap-2">
 
                     <button
-                      title="Edit"
-                      className="
-                        rounded-lg
-                        border
-                        border-gray-800
-                        p-2
-                        text-gray-400
-                        transition
-                        hover:border-yellow-400
-                        hover:text-yellow-400
-                      "
-                    >
-                      <Edit size={16} />
-                    </button>
+  title="Edit"
+  onClick={() => {
+    setEditingProduct(product);
+    setShowProductModal(true);
+  }}
+  className="
+    rounded-lg
+    border
+    border-gray-800
+    p-2
+    text-gray-400
+    transition
+    hover:border-yellow-400
+    hover:text-yellow-400
+  "
+>
+  <Edit size={16} />
+</button>
 
                     <button
                       title={
@@ -606,6 +659,16 @@ const VendorProducts = () => {
           </div>
 
         </div>
+
+        <ProductFormModal
+  isOpen={showProductModal}
+  onClose={() => {
+    setShowProductModal(false);
+    setEditingProduct(null);
+  }}
+  onSave={handleSaveProduct}
+  product={editingProduct}
+/>
 
       </div>
 

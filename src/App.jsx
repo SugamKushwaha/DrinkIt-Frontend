@@ -21,6 +21,9 @@ import VendorOrdersPage from './pages/vendor/VendorOrdersPage';
 import VendorProductsPage from './pages/vendor/VendorProductsPage';
 import VendorOrderDetails from './Components/vendor/order/VendorOrderDetails';
 import VendorOrderDetailsPage from './pages/vendor/VendorOrderDetailsPage';
+import VendorInventoryPage from './pages/vendor/VendorInventoryPage';
+import VendorEarningsPage from './pages/vendor/VendorEarningsPage';
+import VendorProfilePage from './pages/vendor/VendorProfilePage';
 
 function App() {
   return (
@@ -47,6 +50,9 @@ function App() {
          <Route path="/vendor/orders" element={<VendorOrdersPage />} />
          <Route path="/vendor/orders/:orderId" element={<VendorOrderDetailsPage />} />
          <Route path="/vendor/products" element={<VendorProductsPage />} />
+         <Route path="/vendor/inventory" element={<VendorInventoryPage />} />
+         <Route path="/vendor/earnings" element={<VendorEarningsPage />}/>
+         <Route path="/vendor/profile" element={<VendorProfilePage />}/>
       </Routes>
     </BrowserRouter>
   );

@@ -9,6 +9,7 @@ import {
   Truck,
   ChevronRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const VendorOrderCard = ({
   order,
@@ -18,6 +19,9 @@ const VendorOrderCard = ({
   onReady,
   onView,
 }) => {
+
+  const navigate = useNavigate();
+
   const items = order.items || [];
 
   const totalQuantity = items.reduce(
