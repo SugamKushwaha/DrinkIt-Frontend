@@ -34,8 +34,9 @@ import DeliveryEarningsPage from './pages/delivery/DeliveryEarningsPage';
 import DeliveryProfilePage from './pages/delivery/DeliveryProfilePage';
 
 import PartnerPage from './pages/partner/PartnerPage'
-import VendorRegistratio from './pages/partner/VendorRegistration'
 import DeliveryRegistration from './pages/partner/DeliveryRegistration';
+import VendorRegistration from './pages/partner/VendorRegistration';
+import ApplicationStatus from './pages/partner/ApplicationStatus';
 
 function App() {
   return (
@@ -80,9 +81,13 @@ function App() {
 
           {/* ---- Partners---- */}
 
-          {/* <Route path="/partner" element={<PartnerPage />}/>
+          <Route path="/partner" element={<PartnerPage />}/>
           <Route path="/partner/vendor/register" element={<VendorRegistration />}/>
-          <Route path="/partner/delivery/register" element={<DeliveryRegistration />}/> */}
+          <Route path="/partner/delivery/register" element={<DeliveryRegistration />}/>
+          <Route
+  path="/partner/application-status"
+  element={<ApplicationStatus />}
+/>
       </Routes>
     </BrowserRouter>
   );

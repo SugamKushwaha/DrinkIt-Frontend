@@ -227,6 +227,24 @@ const PartnerPage = () => {
             </button>
 
           </div>
+          <button
+  onClick={() => navigate("/partner/application-status")}
+  className="
+    rounded-xl
+    border
+    border-gray-700
+    px-5
+    py-3
+    text-sm
+    font-semibold
+    text-gray-300
+    transition
+    hover:border-yellow-400
+    hover:text-yellow-400
+  "
+>
+  CHECK APPLICATION STATUS
+</button>
 
         </div>
 

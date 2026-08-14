@@ -1,24 +1,25 @@
-import React from 'react'
-// import {
-//   Facebook,
-//   Instagram,
-//   Twitter,
-//   Youtube,
-// } from "lucide-react";
-import { FaFacebook, FaFacebookF, FaInstagram, FaInstagramSquare, FaTwitter, FaTwitterSquare, FaYoutube } from "react-icons/fa";
+import React from "react";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
+
+import { Link } from "react-router-dom";
 
 import navLogo from "../../assets/logos/navLogo.png";
 import googlePlay from "../../assets/images/google-play.png";
 import appStore from "../../assets/images/app-store.png";
-import { Link } from 'lucide-react';
 
 const Footer = () => {
   return (
     <footer className="bg-black border-t border-zinc-800 text-white">
 
-      <div className="max-w-7xl ml-20 px-1 py-5 grid grid-cols-5 gap-10"> 
+      <div className="max-w-7xl ml-20 px-1 py-5 grid grid-cols-5 gap-10">
 
-        {/* Logo Section */}
+        {/* ================= LOGO ================= */}
+
         <div>
 
           <div className="flex items-center gap-3">
@@ -41,13 +42,15 @@ const Footer = () => {
             drinks, snacks & party essentials.
           </p>
 
+          {/* SOCIAL */}
+
           <div className="flex gap-3 mt-6">
 
             <a
               href="#"
               className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center hover:bg-yellow-500 hover:text-black duration-300"
             >
-               <FaFacebookF size={22} />
+              <FaFacebookF size={22} />
             </a>
 
             <a
@@ -75,25 +78,66 @@ const Footer = () => {
 
         </div>
 
-        {/* Shop */}
+        {/* ================= SHOP ================= */}
 
         <div>
+
           <h3 className="font-semibold text-yellow-500 mb-4">
             SHOP
           </h3>
 
-          <ul className="space-y-1  text-sm text-gray-400">
+          <ul className="space-y-2 text-sm text-gray-400">
 
-            <li><a href="#">All Drinks</a></li>
-            <li><a href="#">All Whisky</a></li>
-            <li><a href="#">Party Essentials</a></li>
-            <li><a href="#">Offers</a></li>
-            <li><a href="#">New Arrivals</a></li>
+            <li>
+              <Link
+                to="/shop"
+                className="hover:text-yellow-400 duration-200"
+              >
+                All Drinks
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/shop?category=whisky"
+                className="hover:text-yellow-400 duration-200"
+              >
+                All Whisky
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/shop?category=snacks"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Party Essentials
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/shop?filter=offers"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Offers
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/shop?filter=new"
+                className="hover:text-yellow-400 duration-200"
+              >
+                New Arrivals
+              </Link>
+            </li>
 
           </ul>
+
         </div>
 
-        {/* Help */}
+        {/* ================= HELP ================= */}
 
         <div>
 
@@ -101,19 +145,58 @@ const Footer = () => {
             HELP
           </h3>
 
-          <ul className=" text-sm text-gray-400">
+          <ul className="space-y-2 text-sm text-gray-400">
 
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Delivery Info</a></li>
-            <li><a href="#">Returns & Refunds</a></li>
+            <li>
+              <Link
+                to="/about"
+                className="hover:text-yellow-400 duration-200"
+              >
+                About Us
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/contact"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Contact Us
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/faq"
+                className="hover:text-yellow-400 duration-200"
+              >
+                FAQs
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/delivery-info"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Delivery Info
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/returns"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Returns & Refunds
+              </Link>
+            </li>
 
           </ul>
 
         </div>
 
-        {/* Legal */}
+        {/* ================= LEGAL ================= */}
 
         <div>
 
@@ -121,19 +204,60 @@ const Footer = () => {
             LEGAL
           </h3>
 
-          <ul className="text-sm text-gray-400">
+          <ul className="space-y-2 text-sm text-gray-400">
 
-            <li><a href="">Terms & Conditions</a></li>
-            <li><a href="">Privacy Policy</a></li>
-            <li><a href="">Alcohol Policy</a></li>
-            <li><a href="">Cookie Policy</a></li>
-            <li><a href="/partner">Become Partner</a></li>
+            <li>
+              <Link
+                to="/terms"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Terms & Conditions
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/privacy"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Privacy Policy
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/alcohol-policy"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Alcohol Policy
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/cookie-policy"
+                className="hover:text-yellow-400 duration-200"
+              >
+                Cookie Policy
+              </Link>
+            </li>
+
+            {/* ⭐ PARTNER */}
+
+            <li>
+              <Link
+                to="/partner"
+                className="font-semibold text-yellow-400 hover:text-yellow-300 duration-200"
+              >
+                Become Partner
+              </Link>
+            </li>
 
           </ul>
 
         </div>
 
-        {/* App */}
+        {/* ================= APP ================= */}
 
         <div>
 
@@ -165,16 +289,14 @@ const Footer = () => {
 
       </div>
 
-      {/* Bottom */}
+      {/* ================= BOTTOM ================= */}
 
       <div className="border-t border-zinc-800 py-5 text-center text-gray-500 text-sm">
-
         © 2026 DrinkIt. All rights reserved.
-
       </div>
 
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

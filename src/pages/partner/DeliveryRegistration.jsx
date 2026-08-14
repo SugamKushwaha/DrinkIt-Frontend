@@ -11,6 +11,8 @@ import {
   MapPin,
   CreditCard,
   CheckCircle2,
+  X,
+  Clock3,
 } from "lucide-react";
 
 const DeliveryRegistration = () => {
@@ -36,6 +38,18 @@ const DeliveryRegistration = () => {
 
   const [errors, setErrors] = useState({});
 
+  // =====================================================
+  // SUCCESS POPUP
+  // =====================================================
+
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [submittedApplication, setSubmittedApplication] =
+    useState(null);
+
+  // =====================================================
+  // HANDLE INPUT
+  // =====================================================
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -43,7 +57,19 @@ const DeliveryRegistration = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Remove error when user starts correcting field
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
+
+  // =====================================================
+  // VALIDATION
+  // =====================================================
 
   const validateForm = () => {
     const newErrors = {};
@@ -54,19 +80,39 @@ const DeliveryRegistration = () => {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        formData.email
+      )
+    ) {
+      newErrors.email =
+        "Enter a valid email address";
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone =
         "Phone number is required";
+    } else if (
+      !/^[0-9]{10}$/.test(formData.phone)
+    ) {
+      newErrors.phone =
+        "Enter a valid 10-digit phone number";
     }
 
     if (!formData.password) {
       newErrors.password =
         "Password is required";
+    } else if (
+      formData.password.length < 6
+    ) {
+      newErrors.password =
+        "Password must be at least 6 characters";
     }
 
-    if (
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword =
+        "Please confirm your password";
+    } else if (
       formData.password !==
       formData.confirmPassword
     ) {
@@ -84,9 +130,19 @@ const DeliveryRegistration = () => {
         "City is required";
     }
 
+    if (!formData.state.trim()) {
+      newErrors.state =
+        "State is required";
+    }
+
     if (!formData.pincode.trim()) {
       newErrors.pincode =
         "Pincode is required";
+    } else if (
+      !/^[0-9]{6}$/.test(formData.pincode)
+    ) {
+      newErrors.pincode =
+        "Enter a valid 6-digit pincode";
     }
 
     if (!formData.vehicleType) {
@@ -106,8 +162,14 @@ const DeliveryRegistration = () => {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0;
+    return (
+      Object.keys(newErrors).length === 0
+    );
   };
+
+  // =====================================================
+  // SUBMIT APPLICATION
+  // =====================================================
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -116,32 +178,86 @@ const DeliveryRegistration = () => {
       return;
     }
 
-    /*
-     * TEMPORARY FRONTEND FLOW
-     *
-     * Later this will become:
-     *
-     * POST /api/auth/delivery/register
-     */
+    // Generate Application ID
+    const applicationId =
+      "DI-" +
+      Date.now().toString().slice(-8);
 
-    const deliveryPartnerData = {
-      ...formData,
-      role: "DELIVERY_PARTNER",
+    // Create application
+    const deliveryApplication = {
+      applicationId,
+
+      partnerType: "DELIVERY_PARTNER",
+
+      name: formData.fullName,
+
+      email: formData.email
+        .trim()
+        .toLowerCase(),
+
+      phone: formData.phone,
+
+      password: formData.password,
+
+      address: formData.address,
+      city: formData.city,
+      state: formData.state,
+      pincode: formData.pincode,
+
+      vehicleType: formData.vehicleType,
+      vehicleNumber: formData.vehicleNumber,
+      licenseNumber: formData.licenseNumber,
+
       status: "PENDING",
-      createdAt: new Date().toISOString(),
+
+      submittedAt:
+        new Date().toISOString(),
+
+      rejectionReason: "",
     };
 
+    // =================================================
+    // SAVE APPLICATION
+    // =================================================
+
+    localStorage.setItem(
+      "drinkit-partner-application",
+      JSON.stringify(
+        deliveryApplication
+      )
+    );
+
     console.log(
-      "Delivery Partner Registration:",
-      deliveryPartnerData
+      "Delivery Partner Application:",
+      deliveryApplication
     );
 
-    alert(
-      "Delivery partner application submitted successfully!"
+    // =================================================
+    // SAVE APPLICATION FOR POPUP
+    // =================================================
+
+    setSubmittedApplication(
+      deliveryApplication
     );
 
-    navigate("/partner");
+    // =================================================
+    // SHOW SUCCESS POPUP
+    // =================================================
+
+    setShowSuccessPopup(true);
   };
+
+  // =====================================================
+  // CLOSE POPUP
+  // =====================================================
+
+  const closeSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  };
+
+  // =====================================================
+  // INPUT COMPONENT
+  // =====================================================
 
   const InputField = ({
     name,
@@ -151,7 +267,6 @@ const DeliveryRegistration = () => {
     icon: Icon,
   }) => (
     <div>
-
       <label className="mb-2 block text-sm font-medium text-gray-300">
         {label}
       </label>
@@ -200,9 +315,12 @@ const DeliveryRegistration = () => {
           {errors[name]}
         </p>
       )}
-
     </div>
   );
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <div className="min-h-screen bg-black px-4 py-8 text-white sm:px-6 md:px-10">
@@ -225,6 +343,7 @@ const DeliveryRegistration = () => {
           "
         >
           <ArrowLeft size={18} />
+
           Back to Partner
         </button>
 
@@ -234,18 +353,33 @@ const DeliveryRegistration = () => {
 
           <div className="flex items-center gap-4">
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-400/10">
-
+            <div
+              className="
+                flex
+                h-12
+                w-12
+                items-center
+                justify-center
+                rounded-xl
+                bg-orange-400/10
+              "
+            >
               <Bike
                 size={25}
                 className="text-orange-400"
               />
-
             </div>
 
             <div>
 
-              <p className="text-xs uppercase tracking-wider text-yellow-400">
+              <p
+                className="
+                  text-xs
+                  uppercase
+                  tracking-wider
+                  text-yellow-400
+                "
+              >
                 Partner Registration
               </p>
 
@@ -257,9 +391,18 @@ const DeliveryRegistration = () => {
 
           </div>
 
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-500">
-            Join DrinkIt as a delivery partner and start earning by
-            delivering orders to customers.
+          <p
+            className="
+              mt-4
+              max-w-2xl
+              text-sm
+              leading-6
+              text-gray-500
+            "
+          >
+            Join DrinkIt as a delivery partner and
+            start earning by delivering orders to
+            customers.
           </p>
 
         </div>
@@ -271,9 +414,18 @@ const DeliveryRegistration = () => {
           className="space-y-6"
         >
 
-          {/* PERSONAL */}
+          {/* PERSONAL INFORMATION */}
 
-          <div className="rounded-2xl border border-gray-800 bg-[#080808] p-5 sm:p-7">
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+              sm:p-7
+            "
+          >
 
             <div className="mb-6">
 
@@ -287,7 +439,14 @@ const DeliveryRegistration = () => {
 
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-5
+                md:grid-cols-2
+              "
+            >
 
               <InputField
                 name="fullName"
@@ -308,7 +467,7 @@ const DeliveryRegistration = () => {
                 name="phone"
                 label="Phone Number"
                 type="tel"
-                placeholder="Enter phone number"
+                placeholder="Enter 10 digit phone number"
                 icon={Phone}
               />
 
@@ -334,7 +493,16 @@ const DeliveryRegistration = () => {
 
           {/* ADDRESS */}
 
-          <div className="rounded-2xl border border-gray-800 bg-[#080808] p-5 sm:p-7">
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+              sm:p-7
+            "
+          >
 
             <div className="mb-6">
 
@@ -348,7 +516,14 @@ const DeliveryRegistration = () => {
 
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-5
+                md:grid-cols-2
+              "
+            >
 
               <div className="md:col-span-2">
 
@@ -378,7 +553,7 @@ const DeliveryRegistration = () => {
               <InputField
                 name="pincode"
                 label="Pincode"
-                placeholder="Enter pincode"
+                placeholder="Enter 6 digit pincode"
                 icon={MapPin}
               />
 
@@ -388,7 +563,16 @@ const DeliveryRegistration = () => {
 
           {/* VEHICLE */}
 
-          <div className="rounded-2xl border border-gray-800 bg-[#080808] p-5 sm:p-7">
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+              sm:p-7
+            "
+          >
 
             <div className="mb-6">
 
@@ -397,18 +581,34 @@ const DeliveryRegistration = () => {
               </h2>
 
               <p className="mt-1 text-xs text-gray-500">
-                Tell us about the vehicle you will use for deliveries.
+                Tell us about the vehicle you will
+                use for deliveries.
               </p>
 
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-5
+                md:grid-cols-2
+              "
+            >
 
               {/* VEHICLE TYPE */}
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label
+                  className="
+                    mb-2
+                    block
+                    text-sm
+                    font-medium
+                    text-gray-300
+                  "
+                >
                   Vehicle Type
                 </label>
 
@@ -427,7 +627,9 @@ const DeliveryRegistration = () => {
 
                   <select
                     name="vehicleType"
-                    value={formData.vehicleType}
+                    value={
+                      formData.vehicleType
+                    }
                     onChange={handleChange}
                     className="
                       h-12
@@ -471,7 +673,13 @@ const DeliveryRegistration = () => {
                 </div>
 
                 {errors.vehicleType && (
-                  <p className="mt-1.5 text-xs text-red-400">
+                  <p
+                    className="
+                      mt-1.5
+                      text-xs
+                      text-red-400
+                    "
+                  >
                     {errors.vehicleType}
                   </p>
                 )}
@@ -498,24 +706,52 @@ const DeliveryRegistration = () => {
 
           {/* APPLICATION INFO */}
 
-          <div className="rounded-2xl border border-yellow-400/10 bg-yellow-400/5 p-5">
+          <div
+            className="
+              rounded-2xl
+              border
+              border-yellow-400/10
+              bg-yellow-400/5
+              p-5
+            "
+          >
 
             <div className="flex items-start gap-3">
 
               <CheckCircle2
                 size={20}
-                className="mt-0.5 shrink-0 text-yellow-400"
+                className="
+                  mt-0.5
+                  shrink-0
+                  text-yellow-400
+                "
               />
 
               <div>
 
-                <p className="text-sm font-semibold text-yellow-400">
+                <p
+                  className="
+                    text-sm
+                    font-semibold
+                    text-yellow-400
+                  "
+                >
                   Application Review
                 </p>
 
-                <p className="mt-1 text-xs leading-5 text-gray-500">
-                  Your application will be reviewed before your delivery
-                  partner account is activated.
+                <p
+                  className="
+                    mt-1
+                    text-xs
+                    leading-5
+                    text-gray-500
+                  "
+                >
+                  Your application will be reviewed
+                  before your delivery partner account
+                  is activated. You can check your
+                  application status using your email
+                  address.
                 </p>
 
               </div>
@@ -550,6 +786,287 @@ const DeliveryRegistration = () => {
         </form>
 
       </div>
+
+      {/* =================================================
+          SUCCESS POPUP
+      ================================================= */}
+
+      {showSuccessPopup && submittedApplication && (
+
+        <div
+          className="
+            fixed
+            inset-0
+            z-50
+            flex
+            items-center
+            justify-center
+            bg-black/80
+            px-4
+            backdrop-blur-sm
+          "
+        >
+
+          {/* POPUP */}
+
+          <div
+            className="
+              relative
+              w-full
+              max-w-md
+              rounded-3xl
+              border
+              border-gray-800
+              bg-[#0b0b0b]
+              p-6
+              shadow-2xl
+              sm:p-8
+            "
+          >
+
+            {/* CLOSE */}
+
+            <button
+              onClick={closeSuccessPopup}
+              className="
+                absolute
+                right-4
+                top-4
+                flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-full
+                bg-[#151515]
+                text-gray-400
+                transition
+                hover:bg-gray-800
+                hover:text-white
+              "
+            >
+              <X size={18} />
+            </button>
+
+            {/* SUCCESS ICON */}
+
+            <div
+              className="
+                mx-auto
+                flex
+                h-20
+                w-20
+                items-center
+                justify-center
+                rounded-full
+                bg-green-400/10
+              "
+            >
+              <CheckCircle2
+                size={45}
+                className="text-green-400"
+              />
+            </div>
+
+            {/* TITLE */}
+
+            <div className="mt-6 text-center">
+
+              <h2 className="text-2xl font-bold">
+                Application Submitted!
+              </h2>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  leading-6
+                  text-gray-500
+                "
+              >
+                Your delivery partner application
+                has been successfully submitted to
+                DrinkIt.
+              </p>
+
+            </div>
+
+            {/* APPLICATION DETAILS */}
+
+            <div
+              className="
+                mt-6
+                space-y-3
+                rounded-2xl
+                border
+                border-gray-800
+                bg-[#111]
+                p-5
+              "
+            >
+
+              {/* APPLICATION ID */}
+
+              <div className="flex items-center justify-between gap-4">
+
+                <span className="text-xs text-gray-500">
+                  Application ID
+                </span>
+
+                <span
+                  className="
+                    text-sm
+                    font-semibold
+                    text-yellow-400
+                  "
+                >
+                  {submittedApplication.applicationId}
+                </span>
+
+              </div>
+
+              {/* EMAIL */}
+
+              <div className="flex items-center justify-between gap-4">
+
+                <span className="text-xs text-gray-500">
+                  Email
+                </span>
+
+                <span
+                  className="
+                    max-w-[220px]
+                    break-all
+                    text-right
+                    text-sm
+                    text-gray-300
+                  "
+                >
+                  {submittedApplication.email}
+                </span>
+
+              </div>
+
+              {/* STATUS */}
+
+              <div className="flex items-center justify-between gap-4">
+
+                <span className="text-xs text-gray-500">
+                  Status
+                </span>
+
+                <span
+                  className="
+                    rounded-full
+                    bg-yellow-400/10
+                    px-3
+                    py-1
+                    text-xs
+                    font-semibold
+                    text-yellow-400
+                  "
+                >
+                  PENDING
+                </span>
+
+              </div>
+
+            </div>
+
+            {/* REVIEW MESSAGE */}
+
+            <div
+              className="
+                mt-5
+                flex
+                items-start
+                gap-3
+                rounded-xl
+                border
+                border-yellow-400/10
+                bg-yellow-400/5
+                p-4
+              "
+            >
+
+              <Clock3
+                size={19}
+                className="
+                  mt-0.5
+                  shrink-0
+                  text-yellow-400
+                "
+              />
+
+              <p
+                className="
+                  text-xs
+                  leading-5
+                  text-gray-500
+                "
+              >
+                Our team will review your
+                application. You can check your
+                application status later using the
+                same email address.
+              </p>
+
+            </div>
+
+            {/* BUTTONS */}
+
+            <div className="mt-6 flex flex-col gap-3">
+
+              <button
+                onClick={closeSuccessPopup}
+                className="
+                  w-full
+                  rounded-xl
+                  bg-yellow-400
+                  px-5
+                  py-3
+                  text-sm
+                  font-bold
+                  text-black
+                  transition
+                  hover:bg-yellow-300
+                "
+              >
+                DONE
+              </button>
+
+              <button
+                onClick={() => {
+                  closeSuccessPopup();
+                  navigate(
+                    "/application-status"
+                  );
+                }}
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-gray-700
+                  px-5
+                  py-3
+                  text-sm
+                  font-semibold
+                  text-gray-300
+                  transition
+                  hover:border-yellow-400
+                  hover:text-yellow-400
+                "
+              >
+                CHECK APPLICATION STATUS
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );

@@ -178,6 +178,8 @@ const Navbar = () => {
         items-center
         justify-between
         px-8
+        sticky
+        
       "
     >
 
