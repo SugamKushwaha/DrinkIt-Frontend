@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './Components/account/OrdersPage';
 import AddressPage from './pages/AddressPage';
 import TrackOrders from './Components/orderSuccess/TrackOrder';
+
 import VendorDash from './pages/vendor/VendorDash';
 import VendorOrdersPage from './pages/vendor/VendorOrdersPage';
 import VendorProductsPage from './pages/vendor/VendorProductsPage';
@@ -24,6 +25,17 @@ import VendorOrderDetailsPage from './pages/vendor/VendorOrderDetailsPage';
 import VendorInventoryPage from './pages/vendor/VendorInventoryPage';
 import VendorEarningsPage from './pages/vendor/VendorEarningsPage';
 import VendorProfilePage from './pages/vendor/VendorProfilePage';
+
+import DeliveryLayoutPage from './pages/delivery/DeliveryLayoutPage';
+import DeliveryDashboardPage from './pages/delivery/DeliveryDashboardPage';
+import DeliveryOrdersPage from './pages/delivery/DeliveryOrdersPage';
+import DeliveryOrderDetailsPage from './pages/delivery/DeliveryOrderDetailsPage';
+import DeliveryEarningsPage from './pages/delivery/DeliveryEarningsPage';
+import DeliveryProfilePage from './pages/delivery/DeliveryProfilePage';
+
+import PartnerPage from './pages/partner/PartnerPage'
+import VendorRegistratio from './pages/partner/VendorRegistration'
+import DeliveryRegistration from './pages/partner/DeliveryRegistration';
 
 function App() {
   return (
@@ -53,6 +65,24 @@ function App() {
          <Route path="/vendor/inventory" element={<VendorInventoryPage />} />
          <Route path="/vendor/earnings" element={<VendorEarningsPage />}/>
          <Route path="/vendor/profile" element={<VendorProfilePage />}/>
+
+
+         {/* ---- Delivery Routs ----- */}
+
+         <Route path="/delivery" element={<DeliveryLayoutPage />}>
+            <Route index element={<DeliveryDashboardPage />}/>
+        </Route>
+        <Route path="/delivery/orders" element={<DeliveryOrdersPage />}/>
+        <Route path="/delivery/orders/:orderId" element={<DeliveryOrderDetailsPage />}/>
+        <Route path="/delivery/earnings" element={<DeliveryEarningsPage />}/>
+        <Route path="/delivery/profile" element={<DeliveryProfilePage />}/>
+
+
+          {/* ---- Partners---- */}
+
+          {/* <Route path="/partner" element={<PartnerPage />}/>
+          <Route path="/partner/vendor/register" element={<VendorRegistration />}/>
+          <Route path="/partner/delivery/register" element={<DeliveryRegistration />}/> */}
       </Routes>
     </BrowserRouter>
   );

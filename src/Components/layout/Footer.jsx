@@ -10,6 +10,7 @@ import { FaFacebook, FaFacebookF, FaInstagram, FaInstagramSquare, FaTwitter, FaT
 import navLogo from "../../assets/logos/navLogo.png";
 import googlePlay from "../../assets/images/google-play.png";
 import appStore from "../../assets/images/app-store.png";
+import { Link } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -122,10 +123,11 @@ const Footer = () => {
 
           <ul className="text-sm text-gray-400">
 
-            <li><a href="#">Terms & Conditions</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Alcohol Policy</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="">Terms & Conditions</a></li>
+            <li><a href="">Privacy Policy</a></li>
+            <li><a href="">Alcohol Policy</a></li>
+            <li><a href="">Cookie Policy</a></li>
+            <li><a href="/partner">Become Partner</a></li>
 
           </ul>
 
