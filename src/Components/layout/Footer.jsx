@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 import navLogo from "../../assets/logos/navLogo.png";
 import googlePlay from "../../assets/images/google-play.png";
-import appStore from "../../assets/images/app-store.png";
+import appStore from "../../assets/images/app-store.jpg";
 
 const Footer = () => {
   return (
@@ -280,7 +280,7 @@ const Footer = () => {
             <img
               src={appStore}
               alt="App Store"
-              className="w-34 cursor-pointer"
+              className="w-54 h-7 cursor-pointer mt-6 border rounded-xl border-gray-500 "
             />
 
           </div>

@@ -38,6 +38,22 @@ import DeliveryRegistration from './pages/partner/DeliveryRegistration';
 import VendorRegistration from './pages/partner/VendorRegistration';
 import ApplicationStatus from './pages/partner/ApplicationStatus';
 
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminLayout from './Components/admin/AdminLayout'
+import VendorsPage from './pages/admin/VendorsPage'
+import VendorRequestsPage from './pages/admin/VendorRequestsPage'
+import VendorDetailsPage from './pages/admin/VendorDetailsPage'
+import DeliveryPartnersPage from './pages/admin/DeliveryPartnersPage'
+import DeliveryRequestsPage from './pages/admin/DeliveryRequestsPage'
+import DeliveryPartnerDetailsPage from './pages/admin/DeliveryPartnerDetailsPage'
+import ProductsPage  from './pages/admin/ProductsPage'
+import AddProductPage from './pages/admin/AddProductPage'
+import EditProductPage from './pages/admin/EditProductPage'
+import AdminsPage from './pages/admin/AdminsPage'
+import AddAdminPage from './pages/admin/AddAdminPage'
+import UsersPage from './pages/admin/UsersPage'
+import AdminSettingsPage from './pages/admin/AdminSettingsPage'
+
 function App() {
   return (
     <BrowserRouter>
@@ -84,10 +100,27 @@ function App() {
           <Route path="/partner" element={<PartnerPage />}/>
           <Route path="/partner/vendor/register" element={<VendorRegistration />}/>
           <Route path="/partner/delivery/register" element={<DeliveryRegistration />}/>
-          <Route
-  path="/partner/application-status"
-  element={<ApplicationStatus />}
-/>
+          <Route path="/partner/application-status"  element={<ApplicationStatus />}/>
+
+
+          {/* ----- Admins ------ */}
+
+          <Route path="/admin" element={<AdminLayout />}>
+             <Route index element={<AdminDashboardPage />} />
+             <Route path="vendors" element={<VendorsPage />}/>
+             <Route path="vendors/requests" element={<VendorRequestsPage />}/>
+             <Route path="vendors/:id" element={<VendorDetailsPage />}/>
+             <Route path="delivery-partners" element={<DeliveryPartnersPage />}/>
+             <Route path="delivery-partners/requests" element={<DeliveryRequestsPage />}/>
+             <Route path="delivery-partners/:id" element={<DeliveryPartnerDetailsPage />}/>
+             <Route path="products" element={<ProductsPage />}/>
+             <Route path="products/add" element={<AddProductPage />}/>
+             <Route path="products/edit/:id" element={<EditProductPage />}/>
+             <Route path="admins" element={<AdminsPage />}/>
+             <Route path="admins/add" element={<AddAdminPage />}/>
+             <Route path="users" element={<UsersPage />}/>
+             <Route path="settings" element={<AdminSettingsPage />}/>
+          </Route>
       </Routes>
     </BrowserRouter>
   );
