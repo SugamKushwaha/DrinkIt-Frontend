@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import navLogo from "../../assets/logos/navLogo.png";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   Link,
@@ -24,8 +25,15 @@ import {
   getCartCount,
 } from "../../utils/cartUtils";
 
+
+
 const Navbar = () => {
   const navigate = useNavigate();
+  const {
+  user,
+  isLoggedIn,
+  logout,
+} = useAuth();
 
   // =====================================================
   // CART
@@ -36,71 +44,11 @@ const Navbar = () => {
   );
 
   // =====================================================
-  // USER
-  // =====================================================
-
-  const [user, setUser] = useState(null);
-
-  // =====================================================
   // MOBILE MENU
   // =====================================================
 
   const [mobileMenuOpen, setMobileMenuOpen] =
     useState(false);
-
-  // =====================================================
-  // LOAD USER
-  // =====================================================
-
-  const loadUser = () => {
-    try {
-      const storedUser =
-        localStorage.getItem("drinkit-user");
-
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error(
-        "Failed to load user",
-        error
-      );
-
-      setUser(null);
-    }
-  };
-
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
-
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  // =====================================================
-  // LISTEN FOR AUTH CHANGES
-  // =====================================================
-
-  useEffect(() => {
-    const handleAuthUpdate = () => {
-      loadUser();
-    };
-
-    window.addEventListener(
-      "authUpdated",
-      handleAuthUpdate
-    );
-
-    return () => {
-      window.removeEventListener(
-        "authUpdated",
-        handleAuthUpdate
-      );
-    };
-  }, []);
 
   // =====================================================
   // CART UPDATE
@@ -161,19 +109,13 @@ const Navbar = () => {
   // LOGOUT
   // =====================================================
 
-  const handleLogout = () => {
-    localStorage.removeItem(
-      "drinkit-user"
-    );
+  const handleLogout = async () => {
+  await logout();
 
-    window.dispatchEvent(
-      new Event("authUpdated")
-    );
+  setMobileMenuOpen(false);
 
-    setMobileMenuOpen(false);
-
-    navigate("/");
-  };
+  navigate("/");
+};
 
   // =====================================================
   // CART
@@ -438,57 +380,49 @@ const Navbar = () => {
               AUTH
           ================================================= */}
 
-          {!user ? (
+         {!user ? (
+  <button
+    onClick={handleLogin}
+    className="
+      flex
+      items-center
+      gap-2
+      whitespace-nowrap
+      text-white
+      transition
+      hover:text-yellow-400
+    "
+  >
+    <User size={18} />
 
-            <button
-              onClick={handleLogin}
-              className="
-                flex
-                items-center
-                gap-2
-                whitespace-nowrap
-                text-white
-                transition
-                hover:text-yellow-400
-              "
-            >
+    <span>
+      Login / Signup
+    </span>
+  </button>
+) : (
+  <button
+    onClick={handleProfile}
+    title={user.name}
+    className="
+      flex
+      cursor-pointer
+      items-center
+      gap-2
+      text-white
+      transition
+      hover:text-yellow-400
+    "
+  >
+    <UserCircle
+      size={26}
+      className="text-yellow-400"
+    />
 
-              <User size={18} />
-
-              <span>
-                Login / Signup
-              </span>
-
-            </button>
-
-          ) : (
-
-            <button
-              onClick={handleProfile}
-              title={user.name}
-              className="
-                flex
-                cursor-pointer
-                items-center
-                gap-2
-                text-white
-                transition
-                hover:text-yellow-400
-              "
-            >
-
-              <UserCircle
-                size={26}
-                className="text-yellow-400"
-              />
-
-              <span className="hidden xl:block">
-                {user.name?.split(" ")[0]}
-              </span>
-
-            </button>
-
-          )}
+    <span className="hidden xl:block">
+      {user.name?.split(" ")[0]}
+    </span>
+  </button>
+)}
 
 
           {/* =================================================

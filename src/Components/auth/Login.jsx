@@ -5,28 +5,59 @@ import AuthLayout from "../../components/auth/AuthLayout";
 import LoginForm from "../../components/auth/LoginForm";
 
 const Login = () => {
+
   const navigate = useNavigate();
 
+  // ==========================================
+  // LOGIN SUCCESS
+  // ==========================================
+
   const handleLogin = (data) => {
-    console.log("Login:", data);
 
-    // TEMPORARY LOGIN STATE
-    const user = {
-      name: "Sugam Kushwaha",
-      email: data.email,
-    };
-
-    localStorage.setItem(
-      "drinkit-user",
-      JSON.stringify(user)
+    console.log(
+      "Login successful:",
+      data
     );
 
-    // Tell Navbar that login state changed
-    window.dispatchEvent(
-      new Event("authUpdated")
-    );
+    /*
+     * JWT is NOT stored here.
+     *
+     * Backend has already placed JWT
+     * inside an HttpOnly cookie.
+     */
 
-    navigate("/");
+    switch (data.role) {
+
+      case "ADMIN":
+
+        navigate("/admin");
+
+        break;
+
+      case "VENDOR":
+
+        navigate("/vendor");
+
+        break;
+
+      case "DELIVERY_PARTNER":
+
+        navigate("/delivery-partner");
+
+        break;
+
+      case "CUSTOMER":
+
+        navigate("/");
+
+        break;
+
+      default:
+
+        navigate("/");
+
+        break;
+    }
   };
 
   return (
@@ -37,7 +68,11 @@ const Login = () => {
       bottomLinkText="Create Account"
       bottomLink="/signup"
     >
-      <LoginForm onLogin={handleLogin} />
+
+      <LoginForm
+        onLogin={handleLogin}
+      />
+
     </AuthLayout>
   );
 };

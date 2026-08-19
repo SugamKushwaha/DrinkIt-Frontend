@@ -8,60 +8,130 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const LoginForm = ({ onLogin }) => {
+import { useAuth } from "../../context/AuthContext";
 
-  const [showPassword, setShowPassword] = useState(false);
+const LoginForm = ({ onLogin }) => {
+  const { login } = useAuth();
+
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // ==========================================
+  // CHANGE
+  // ==========================================
 
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
   };
 
+  // ==========================================
+  // LOGIN
+  // ==========================================
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
 
-    e.preventDefault();
+  e.preventDefault();
 
-    console.log("Login Data:", formData);
+  setError("");
 
-    // Later:
-    // POST /api/auth/login
+  try {
+
+    setLoading(true);
+
+    const response =
+      await login(formData);
+
+    console.log(
+      "Login successful:",
+      response
+    );
 
     if (onLogin) {
-      onLogin(formData);
+      onLogin(response);
     }
 
-  };
+  } catch (error) {
 
+    console.error(
+      "Login error:",
+      error
+    );
+
+    if (error.response) {
+
+      setError(
+        error.response.data?.message ||
+        "Invalid email or password."
+      );
+
+    } else if (error.request) {
+
+      setError(
+        "Backend server is not responding."
+      );
+
+    } else {
+
+      setError(
+        "Something went wrong. Please try again."
+      );
+    }
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   return (
     <form
       onSubmit={handleSubmit}
       className="space-y-5"
     >
+      {/* ERROR */}
+
+      {error && (
+        <div
+          className="
+            bg-red-500/10
+            border
+            border-red-500/20
+            text-red-400
+            text-sm
+            rounded-xl
+            px-4
+            py-3
+          "
+        >
+          {error}
+        </div>
+      )}
 
       {/* EMAIL */}
 
       <div>
-
         <label className="block text-sm text-gray-300 mb-2">
           Email Address
         </label>
 
         <div className="relative">
-
           <Mail
             size={18}
             className="
@@ -96,18 +166,13 @@ const LoginForm = ({ onLogin }) => {
               transition
             "
           />
-
         </div>
-
       </div>
-
 
       {/* PASSWORD */}
 
       <div>
-
         <div className="flex justify-between mb-2">
-
           <label className="text-sm text-gray-300">
             Password
           </label>
@@ -122,12 +187,9 @@ const LoginForm = ({ onLogin }) => {
           >
             Forgot Password?
           </button>
-
         </div>
 
-
         <div className="relative">
-
           <Lock
             size={18}
             className="
@@ -140,7 +202,11 @@ const LoginForm = ({ onLogin }) => {
           />
 
           <input
-            type={showPassword ? "text" : "password"}
+            type={
+              showPassword
+                ? "text"
+                : "password"
+            }
             name="password"
             value={formData.password}
             onChange={handleChange}
@@ -163,11 +229,12 @@ const LoginForm = ({ onLogin }) => {
             "
           />
 
-
           <button
             type="button"
             onClick={() =>
-              setShowPassword(!showPassword)
+              setShowPassword(
+                !showPassword
+              )
             }
             className="
               absolute
@@ -178,24 +245,18 @@ const LoginForm = ({ onLogin }) => {
               hover:text-white
             "
           >
-
             {showPassword ? (
               <EyeOff size={18} />
             ) : (
               <Eye size={18} />
             )}
-
           </button>
-
         </div>
-
       </div>
-
 
       {/* REMEMBER */}
 
       <div className="flex items-center gap-2">
-
         <input
           type="checkbox"
           id="remember"
@@ -208,14 +269,13 @@ const LoginForm = ({ onLogin }) => {
         >
           Remember me
         </label>
-
       </div>
 
-
-      {/* LOGIN BUTTON */}
+      {/* LOGIN */}
 
       <button
         type="submit"
+        disabled={loading}
         className="
           w-full
           h-13
@@ -223,6 +283,8 @@ const LoginForm = ({ onLogin }) => {
           rounded-xl
           bg-yellow-400
           hover:bg-yellow-300
+          disabled:opacity-60
+          disabled:cursor-not-allowed
           text-black
           font-bold
           flex
@@ -234,20 +296,18 @@ const LoginForm = ({ onLogin }) => {
           shadow-yellow-400/10
         "
       >
+        {loading
+          ? "LOGGING IN..."
+          : "LOGIN"}
 
-        LOGIN
-
-        <ArrowRight size={18} />
-
+        {!loading && (
+          <ArrowRight size={18} />
+        )}
       </button>
-
-
-      {/* SECURITY */}
 
       <p className="text-center text-[11px] text-gray-600 pt-2">
         Your account information is protected securely.
       </p>
-
     </form>
   );
 };

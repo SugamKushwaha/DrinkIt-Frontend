@@ -5,17 +5,32 @@ import AuthLayout from "../../components/auth/AuthLayout";
 import SignupForm from "../../components/auth/SignupForm";
 
 const Signup = () => {
+
   const navigate = useNavigate();
 
   const handleSignup = (data) => {
-    console.log("Signup:", data);
 
-    // TEMPORARY
-    // Backend API will be connected later.
+    console.log(
+      "Registration successful:",
+      data
+    );
 
-    alert("Account created successfully!");
+    /*
+     * Registration creates a CUSTOMER
+     * in the database.
+     *
+     * We don't automatically store anything
+     * in localStorage.
+     *
+     * Redirect to login.
+     */
 
-    navigate("/login");
+    navigate("/login", {
+      state: {
+        message:
+          "Account created successfully. Please login.",
+      },
+    });
   };
 
   return (
@@ -26,7 +41,11 @@ const Signup = () => {
       bottomLinkText="Login"
       bottomLink="/login"
     >
-      <SignupForm onSignup={handleSignup} />
+
+      <SignupForm
+        onSignup={handleSignup}
+      />
+
     </AuthLayout>
   );
 };

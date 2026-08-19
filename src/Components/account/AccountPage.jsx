@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import AccountSidebar from "./AccountSidebar";
 import ProfileCard from "./ProfileCard";
@@ -9,6 +10,10 @@ import ReferBanner from "./ReferBanner";
 
 const AccountPage = () => {
   const navigate = useNavigate();
+
+  const {
+    logout,
+  } = useAuth();
 
   const [activeSection, setActiveSection] =
     useState("profile");
@@ -62,11 +67,25 @@ const AccountPage = () => {
   // LOGOUT
   // =====================================================
 
-  const handleLogout = () => {
-    localStorage.removeItem("drinkit-user");
-    localStorage.removeItem("drinkit-token");
+   const handleLogout = async () => {
 
-    navigate("/login");
+    try {
+
+      await logout();
+
+      // After successful logout
+      navigate("/login", {
+        replace: true,
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Logout failed:",
+        error
+      );
+
+    }
   };
 
  
