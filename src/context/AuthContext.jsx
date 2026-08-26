@@ -6,39 +6,48 @@ import React, {
 } from "react";
 
 import {
-  loginApi,
-  registerApi,
-  getCurrentUserApi,
-  logoutApi,
+  loginUser,
+  registerUser,
+  getCurrentUser,
+  logoutUser,
 } from "../api/authApi";
 
 const AuthContext = createContext(null);
 
-// ==========================================
-// PROVIDER
-// ==========================================
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
 
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // ==========================================
-  // CHECK CURRENT LOGIN
+  // CHECK AUTHENTICATION
   // ==========================================
 
   const checkAuth = async () => {
+
     try {
+
       setLoading(true);
 
-      const currentUser =
-        await getCurrentUserApi();
+      const currentUser = await getCurrentUser();
+
+      console.log("CURRENT USER:", currentUser);
 
       setUser(currentUser);
+
     } catch (error) {
+
+      console.error(
+        "Authentication check failed:",
+        error.response?.data || error.message
+      );
+
       setUser(null);
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -47,7 +56,9 @@ export const AuthProvider = ({ children }) => {
   // ==========================================
 
   useEffect(() => {
+
     checkAuth();
+
   }, []);
 
   // ==========================================
@@ -56,19 +67,31 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (loginData) => {
 
-    const response =
-      await loginApi(loginData);
+    try {
 
-    /*
-     * Backend has already created the
-     * HttpOnly JWT cookie.
-     *
-     * We DON'T store the token.
-     */
+      const response = await loginUser(loginData);
 
-    setUser(response);
+      console.log("LOGIN RESPONSE:", response);
 
-    return response;
+      /*
+       * Backend creates HttpOnly JWT cookie.
+       *
+       * We do NOT store JWT in localStorage.
+       */
+
+      await checkAuth();
+
+      return response;
+
+    } catch (error) {
+
+      console.error(
+        "Login failed:",
+        error.response?.data || error.message
+      );
+
+      throw error;
+    }
   };
 
   // ==========================================
@@ -77,10 +100,22 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (registerData) => {
 
-    const response =
-      await registerApi(registerData);
+    try {
 
-    return response;
+      const response =
+        await registerUser(registerData);
+
+      return response;
+
+    } catch (error) {
+
+      console.error(
+        "Registration failed:",
+        error.response?.data || error.message
+      );
+
+      throw error;
+    }
   };
 
   // ==========================================
@@ -91,22 +126,18 @@ export const AuthProvider = ({ children }) => {
 
     try {
 
-      await logoutApi();
+      await logoutUser();
 
     } catch (error) {
 
       console.error(
         "Logout error:",
-        error
+        error.response?.data || error.message
       );
 
     } finally {
 
       setUser(null);
-
-      window.dispatchEvent(
-        new Event("authUpdated")
-      );
     }
   };
 
@@ -114,26 +145,20 @@ export const AuthProvider = ({ children }) => {
   // AUTH STATE
   // ==========================================
 
-  const isAuthenticated =
-    Boolean(user);
+  const isAuthenticated = Boolean(user);
 
   // ==========================================
-  // CONTEXT
+  // CONTEXT VALUE
   // ==========================================
 
   const value = {
     user,
-
     loading,
-
     isAuthenticated,
 
     login,
-
     register,
-
     logout,
-
     checkAuth,
   };
 
@@ -150,8 +175,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
 
-  const context =
-    useContext(AuthContext);
+  const context = useContext(AuthContext);
 
   if (!context) {
 

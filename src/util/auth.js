@@ -1,8 +1,9 @@
 import api from "./axios";
 
-/**
- * REGISTER
- */
+// ==========================================
+// REGISTER
+// ==========================================
+
 export const registerUser = async (data) => {
   const response = await api.post("/auth/register", {
     name: data.name,
@@ -14,9 +15,10 @@ export const registerUser = async (data) => {
   return response.data;
 };
 
-/**
- * LOGIN
- */
+// ==========================================
+// LOGIN
+// ==========================================
+
 export const loginUser = async (data) => {
   const response = await api.post("/auth/login", {
     email: data.email,
@@ -26,18 +28,20 @@ export const loginUser = async (data) => {
   return response.data;
 };
 
-/**
- * CURRENT LOGGED-IN USER
- */
+// ==========================================
+// GET CURRENT USER
+// ==========================================
+
 export const getCurrentUser = async () => {
   const response = await api.get("/auth/me");
 
   return response.data;
 };
 
-/**
- * LOGOUT
- */
+// ==========================================
+// LOGOUT
+// ==========================================
+
 export const logoutUser = async () => {
   const response = await api.post("/auth/logout");
 

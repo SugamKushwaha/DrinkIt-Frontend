@@ -1,46 +1,49 @@
-import axios from "axios";
+import api from "./axios";
 
-const API = axios.create({
-  baseURL: "http://localhost:8080/api",
-  withCredentials: true,
-});
+// ==========================================
+// LOGIN
+// ==========================================
 
-export const loginApi = async (data) => {
-
-  const response = await API.post(
-    "/auth/login",
-    data
-  );
+export const loginUser = async (data) => {
+  const response = await api.post("/auth/login", {
+    email: data.email,
+    password: data.password,
+  });
 
   return response.data;
 };
 
-export const registerApi = async (data) => {
+// ==========================================
+// REGISTER
+// ==========================================
 
-  const response = await API.post(
-    "/auth/register",
-    data
-  );
-
-  return response.data;
-};
-
-export const getCurrentUserApi = async () => {
-
-  const response = await API.get(
-    "/auth/me"
-  );
+export const registerUser = async (data) => {
+  const response = await api.post("/auth/register", {
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    password: data.password,
+  });
 
   return response.data;
 };
 
-export const logoutApi = async () => {
+// ==========================================
+// CURRENT USER
+// ==========================================
 
-  const response = await API.post(
-    "/auth/logout"
-  );
+export const getCurrentUser = async () => {
+  const response = await api.get("/users/me");
 
   return response.data;
 };
 
-export default API;
+// ==========================================
+// LOGOUT
+// ==========================================
+
+export const logoutUser = async () => {
+  const response = await api.post("/auth/logout");
+
+  return response.data;
+};

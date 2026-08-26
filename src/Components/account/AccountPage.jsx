@@ -9,26 +9,91 @@ import AccountOverview from "./AccountOverview";
 import ReferBanner from "./ReferBanner";
 
 const AccountPage = () => {
+
   const navigate = useNavigate();
 
   const {
+    user,
+    loading,
     logout,
   } = useAuth();
 
   const [activeSection, setActiveSection] =
     useState("profile");
 
-  // TEMPORARY USER DATA
-  // Later this will come from Spring Boot API
+  // ==========================================
+  // LOADING
+  // ==========================================
 
-  const user = {
-    name: "Sugam Kushwaha",
-    email: "sugam@example.com",
-    phone: "+91 9876543210",
-    joinedDate: "August 2024",
-    verified: true,
-    avatar: null,
-  };
+  if (loading) {
+
+    return (
+      <div className="
+        min-h-screen
+        bg-black
+        text-white
+        flex
+        items-center
+        justify-center
+      ">
+        <p className="text-yellow-400">
+          Loading profile...
+        </p>
+      </div>
+    );
+
+  }
+
+  // ==========================================
+  // NOT LOGGED IN
+  // ==========================================
+
+  if (!user) {
+
+    return (
+      <div className="
+        min-h-screen
+        bg-black
+        text-white
+        flex
+        items-center
+        justify-center
+      ">
+
+        <div className="text-center">
+
+          <p className="
+            text-gray-400
+            mb-4
+          ">
+            Please login to view your account.
+          </p>
+
+          <button
+            onClick={() =>
+              navigate("/login")
+            }
+            className="
+              bg-yellow-400
+              text-black
+              px-6 py-3
+              rounded-lg
+              font-semibold
+            "
+          >
+            LOGIN
+          </button>
+
+        </div>
+
+      </div>
+    );
+
+  }
+
+  // ==========================================
+  // STATS
+  // ==========================================
 
   const stats = {
     orders: 12,
@@ -37,15 +102,16 @@ const AccountPage = () => {
     addresses: 3,
   };
 
-  // =====================================================
-  // SIDEBAR NAVIGATION
-  // =====================================================
+  // ==========================================
+  // NAVIGATION
+  // ==========================================
 
   const handleNavigation = (section) => {
+
     setActiveSection(section);
 
-    // Later these can become actual routes
     switch (section) {
+
       case "orders":
         navigate("/orders");
         break;
@@ -60,46 +126,38 @@ const AccountPage = () => {
 
       default:
         break;
+
     }
+
   };
 
-  // =====================================================
+  // ==========================================
   // LOGOUT
-  // =====================================================
+  // ==========================================
 
-   const handleLogout = async () => {
+  const handleLogout = async () => {
 
-    try {
+    await logout();
 
-      await logout();
+    navigate("/login", {
+      replace: true,
+    });
 
-      // After successful logout
-      navigate("/login", {
-        replace: true,
-      });
-
-    } catch (error) {
-
-      console.error(
-        "Logout failed:",
-        error
-      );
-
-    }
   };
-
- 
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="
+      min-h-screen
+      bg-black
+      text-white
+    ">
 
-      <div className="max-w-[1500px] mx-auto">
+      <div className="
+        max-w-[1500px]
+        mx-auto
+      ">
 
         <div className="flex">
-
-          {/* =================================================
-              SIDEBAR
-          ================================================= */}
 
           <AccountSidebar
             activeSection={activeSection}
@@ -107,49 +165,55 @@ const AccountPage = () => {
             onLogout={handleLogout}
           />
 
-          {/* =================================================
-              MAIN CONTENT
-          ================================================= */}
+          <main className="
+            flex-1
+            min-w-0
+          ">
 
-          <main className="flex-1 min-w-0">
-
-            <div className="px-5 py-8 md:px-8 lg:px-10">
-
-              {/* HEADER */}
+            <div className="
+              px-5
+              py-8
+              md:px-8
+              lg:px-10
+            ">
 
               <div className="mb-7">
 
-                <h1 className="text-3xl md:text-4xl font-semibold">
+                <h1 className="
+                  text-3xl
+                  md:text-4xl
+                  font-semibold
+                ">
                   Profile Information
                 </h1>
 
-                <p className="text-gray-500 mt-2">
-                  Manage your personal details and account settings
+                <p className="
+                  text-gray-500
+                  mt-2
+                ">
+                  Manage your personal details
+                  and account settings
                 </p>
 
               </div>
 
-              {/* PROFILE */}
-
               <ProfileCard user={user} />
 
-              {/* STATS */}
-
               <div className="mt-5">
-                <AccountStats stats={stats} />
+                <AccountStats
+                  stats={stats}
+                />
               </div>
-
-              {/* OVERVIEW */}
 
               <div className="mt-8">
 
                 <AccountOverview
-                  onNavigate={handleNavigation}
+                  onNavigate={
+                    handleNavigation
+                  }
                 />
 
               </div>
-
-              {/* REFER */}
 
               <div className="mt-6">
 
