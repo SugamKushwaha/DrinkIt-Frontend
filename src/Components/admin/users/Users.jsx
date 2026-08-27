@@ -7,31 +7,111 @@ import {
 
 import {
   getUsers,
-} from "../../../utils/adminStorage";
+} from "../../../api/adminApi";
 
 const Users = () => {
 
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ==========================================
+  // LOAD USERS
+  // ==========================================
+
+  const loadUsers = async () => {
+
+    try {
+
+      setLoading(true);
+      setError("");
+
+      const data = await getUsers();
+
+      setUsers(data || []);
+
+    } catch (error) {
+
+      console.error(
+        "Failed to load customers:",
+        error
+      );
+
+      setError(
+        error?.response?.data?.message ||
+        "Failed to load customers."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  // ==========================================
+  // LOAD ON PAGE OPEN
+  // ==========================================
 
   useEffect(() => {
-    setUsers(getUsers());
+
+    loadUsers();
+
   }, []);
+
+  // ==========================================
+  // SEARCH
+  // ==========================================
 
   const filtered = users.filter((user) => {
 
     const value = search.toLowerCase();
 
     return (
-      user.name?.toLowerCase().includes(value) ||
-      user.email?.toLowerCase().includes(value) ||
-      user.phone?.toLowerCase().includes(value)
+      user.name
+        ?.toLowerCase()
+        .includes(value) ||
+
+      user.email
+        ?.toLowerCase()
+        .includes(value) ||
+
+      user.phone
+        ?.toLowerCase()
+        .includes(value)
     );
 
   });
 
+  // ==========================================
+  // LOADING
+  // ==========================================
+
+  if (loading) {
+
+    return (
+      <div className="flex items-center justify-center py-20">
+
+        <p className="text-gray-400">
+          Loading customers...
+        </p>
+
+      </div>
+    );
+
+  }
+
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
+
     <div className="space-y-6">
+
+      {/* HEADER */}
 
       <div>
 
@@ -44,6 +124,20 @@ const Users = () => {
         </p>
 
       </div>
+
+      {/* ERROR */}
+
+      {error && (
+
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3">
+
+          {error}
+
+        </div>
+
+      )}
+
+      {/* SEARCH */}
 
       <div className="bg-[#151515] border border-white/10 rounded-2xl p-4">
 
@@ -66,6 +160,8 @@ const Users = () => {
         </div>
 
       </div>
+
+      {/* TABLE */}
 
       <div className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden">
 
@@ -106,6 +202,8 @@ const Users = () => {
                   className="border-t border-white/5"
                 >
 
+                  {/* CUSTOMER */}
+
                   <td className="p-4">
 
                     <div className="flex items-center gap-3">
@@ -127,20 +225,32 @@ const Users = () => {
 
                   </td>
 
-                  <td className="p-4">
-                    {user.email || "-"}
-                  </td>
+                  {/* EMAIL */}
 
                   <td className="p-4">
-                    {user.phone || "-"}
+
+                    {user.email || "-"}
+
                   </td>
+
+                  {/* PHONE */}
+
+                  <td className="p-4">
+
+                    {user.phone || "-"}
+
+                  </td>
+
+                  {/* JOINED */}
 
                   <td className="p-4 text-gray-500">
+
                     {user.createdAt
                       ? new Date(
                           user.createdAt
                         ).toLocaleDateString()
                       : "-"}
+
                   </td>
 
                 </tr>
@@ -153,10 +263,24 @@ const Users = () => {
 
         </div>
 
+        {/* EMPTY */}
+
+        {filtered.length === 0 && (
+
+          <div className="p-12 text-center text-gray-500">
+
+            No customers found.
+
+          </div>
+
+        )}
+
       </div>
 
     </div>
+
   );
+
 };
 
 export default Users;
