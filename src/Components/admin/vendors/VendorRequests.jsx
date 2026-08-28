@@ -314,11 +314,11 @@ const VendorRequests = () => {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      handleDetails(
-                        request.requestId
-                      )
-                    }
+                     onClick={() =>
+    navigate(
+      `/admin/vendors-requests/${request.requestId}`
+    )
+  }
                     className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 flex items-center gap-2"
                   >
 

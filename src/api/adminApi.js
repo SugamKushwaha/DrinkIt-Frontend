@@ -75,3 +75,16 @@ export const rejectVendorRequest = async (
 
   return response.data;
 };
+
+// ==========================================
+// GET APPROVED VENDOR
+// ==========================================
+
+export const getVendor = async (id) => {
+
+  const response = await api.get(
+    `/admin/vendors/${id}`
+  );
+
+  return response.data;
+};

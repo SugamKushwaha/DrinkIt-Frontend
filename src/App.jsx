@@ -109,6 +109,7 @@ function App() {
              <Route index element={<AdminDashboardPage />} />
              <Route path="vendors" element={<VendorsPage />}/>
              <Route path="vendors/requests" element={<VendorRequestsPage />}/>
+             <Route path="vendors-requests/:id" element={<VendorDetailsPage />}/>
              <Route path="vendors/:id" element={<VendorDetailsPage />}/>
              <Route path="delivery-partners" element={<DeliveryPartnersPage />}/>
              <Route path="delivery-partners/requests" element={<DeliveryRequestsPage />}/>

@@ -15,20 +15,15 @@ import {
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // ==========================================
-  // CHECK AUTHENTICATION
+  // CHECK AUTH
   // ==========================================
 
   const checkAuth = async () => {
-
     try {
-
-      setLoading(true);
-
       const currentUser = await getCurrentUser();
 
       console.log("CURRENT USER:", currentUser);
@@ -36,18 +31,14 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
 
     } catch (error) {
-
-      console.error(
-        "Authentication check failed:",
-        error.response?.data || error.message
+      console.log(
+        "No authenticated user"
       );
 
       setUser(null);
 
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -56,9 +47,7 @@ export const AuthProvider = ({ children }) => {
   // ==========================================
 
   useEffect(() => {
-
     checkAuth();
-
   }, []);
 
   // ==========================================
@@ -66,32 +55,19 @@ export const AuthProvider = ({ children }) => {
   // ==========================================
 
   const login = async (loginData) => {
+    const response = await loginUser(loginData);
 
-    try {
+    console.log(
+      "LOGIN RESPONSE:",
+      response
+    );
 
-      const response = await loginUser(loginData);
+    // Cookie is automatically stored
+    // by browser.
 
-      console.log("LOGIN RESPONSE:", response);
+    await checkAuth();
 
-      /*
-       * Backend creates HttpOnly JWT cookie.
-       *
-       * We do NOT store JWT in localStorage.
-       */
-
-      await checkAuth();
-
-      return response;
-
-    } catch (error) {
-
-      console.error(
-        "Login failed:",
-        error.response?.data || error.message
-      );
-
-      throw error;
-    }
+    return response;
   };
 
   // ==========================================
@@ -99,23 +75,15 @@ export const AuthProvider = ({ children }) => {
   // ==========================================
 
   const register = async (registerData) => {
+    const response =
+      await registerUser(registerData);
 
-    try {
+    console.log(
+      "REGISTER RESPONSE:",
+      response
+    );
 
-      const response =
-        await registerUser(registerData);
-
-      return response;
-
-    } catch (error) {
-
-      console.error(
-        "Registration failed:",
-        error.response?.data || error.message
-      );
-
-      throw error;
-    }
+    return response;
   };
 
   // ==========================================
@@ -123,20 +91,15 @@ export const AuthProvider = ({ children }) => {
   // ==========================================
 
   const logout = async () => {
-
     try {
-
       await logoutUser();
-
     } catch (error) {
-
       console.error(
         "Logout error:",
-        error.response?.data || error.message
+        error.response?.data ||
+        error.message
       );
-
     } finally {
-
       setUser(null);
     }
   };
@@ -145,25 +108,21 @@ export const AuthProvider = ({ children }) => {
   // AUTH STATE
   // ==========================================
 
-  const isAuthenticated = Boolean(user);
-
-  // ==========================================
-  // CONTEXT VALUE
-  // ==========================================
-
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-
-    login,
-    register,
-    logout,
-    checkAuth,
-  };
+  const isAuthenticated =
+    Boolean(user);
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        checkAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -174,11 +133,9 @@ export const AuthProvider = ({ children }) => {
 // ==========================================
 
 export const useAuth = () => {
-
   const context = useContext(AuthContext);
 
   if (!context) {
-
     throw new Error(
       "useAuth must be used inside AuthProvider"
     );

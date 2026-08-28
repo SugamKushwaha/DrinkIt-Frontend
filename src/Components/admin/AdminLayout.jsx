@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -60,12 +62,10 @@ const AdminLayout = () => {
     },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem("drinkit-admin");
-
+ const handleLogout = async () => {
+    await logout();       // calls /api/auth/logout, clears the cookie, resets user to null
     navigate("/login");
   };
-
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white">
 

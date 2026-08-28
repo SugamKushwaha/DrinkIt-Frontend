@@ -4,33 +4,39 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/auth/AuthLayout";
 import SignupForm from "../../components/auth/SignupForm";
 
-const Signup = () => {
+import { useAuth } from "../../context/AuthContext";
 
+const Signup = () => {
   const navigate = useNavigate();
 
-  const handleSignup = (data) => {
+  const { register } = useAuth();
 
-    console.log(
-      "Registration successful:",
-      data
-    );
+  const handleSignup = async (data) => {
+    try {
+      console.log("REGISTER DATA:", data);
 
-    /*
-     * Registration creates a CUSTOMER
-     * in the database.
-     *
-     * We don't automatically store anything
-     * in localStorage.
-     *
-     * Redirect to login.
-     */
+      const response = await register(data);
 
-    navigate("/login", {
-      state: {
-        message:
-          "Account created successfully. Please login.",
-      },
-    });
+      console.log("REGISTRATION SUCCESS:", response);
+
+      navigate("/login", {
+        state: {
+          message:
+            "Account created successfully. Please login.",
+        },
+      });
+
+    } catch (error) {
+      console.error(
+        "REGISTRATION ERROR:",
+        error.response?.data || error.message
+      );
+
+      alert(
+        error.response?.data?.message ||
+        "Registration failed"
+      );
+    }
   };
 
   return (
@@ -41,11 +47,9 @@ const Signup = () => {
       bottomLinkText="Login"
       bottomLink="/login"
     >
-
       <SignupForm
         onSignup={handleSignup}
       />
-
     </AuthLayout>
   );
 };

@@ -21,10 +21,12 @@ import {
 import {
   useNavigate,
   useParams,
+  useLocation,
 } from "react-router-dom";
 
 import {
   getVendorRequest,
+  getVendor,
 } from "../../../api/adminApi";
 
 const VendorDetails = () => {
@@ -33,43 +35,66 @@ const VendorDetails = () => {
 
   const { id } = useParams();
 
-  const [request, setRequest] =
-    useState(null);
+  const location = useLocation();
 
-  const [loading, setLoading] =
-    useState(true);
+  const [vendor, setVendor] = useState(null);
 
-  const [error, setError] =
-    useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
 
   // ==========================================
-  // LOAD VENDOR REQUEST
+  // CHECK WHETHER THIS IS REQUEST OR VENDOR
+  // ==========================================
+
+  const isVendorRequest =
+    location.pathname.includes("vendors-requests");
+
+  // ==========================================
+  // LOAD DETAILS
   // ==========================================
 
   useEffect(() => {
 
-    const loadRequest = async () => {
+    const loadDetails = async () => {
 
       try {
 
         setLoading(true);
         setError("");
 
-        const data =
-          await getVendorRequest(id);
+        let data;
 
-        setRequest(data);
+        if (isVendorRequest) {
+
+          // ----------------------------------
+          // VENDOR REQUEST
+          // ----------------------------------
+
+          data = await getVendorRequest(id);
+
+        } else {
+
+          // ----------------------------------
+          // APPROVED VENDOR
+          // ----------------------------------
+
+          data = await getVendor(id);
+
+        }
+
+        setVendor(data);
 
       } catch (error) {
 
         console.error(
-          "Failed to load vendor request:",
+          "Failed to load vendor details:",
           error
         );
 
         setError(
           error?.response?.data?.message ||
-          "Failed to load vendor request."
+          "Failed to load vendor details."
         );
 
       } finally {
@@ -80,9 +105,9 @@ const VendorDetails = () => {
 
     };
 
-    loadRequest();
+    loadDetails();
 
-  }, [id]);
+  }, [id, isVendorRequest]);
 
   // ==========================================
   // LOADING
@@ -137,13 +162,17 @@ const VendorDetails = () => {
 
   }
 
-  if (!request) {
+  // ==========================================
+  // NOT FOUND
+  // ==========================================
+
+  if (!vendor) {
 
     return (
 
       <div className="text-center py-20 text-gray-500">
 
-        Vendor request not found.
+        Vendor details not found.
 
       </div>
 
@@ -157,7 +186,8 @@ const VendorDetails = () => {
 
   const getStatusIcon = () => {
 
-    if (request.status === "APPROVED") {
+    if (vendor.status === "APPROVED" ||
+        vendor.status === "ACTIVE") {
 
       return (
         <CheckCircle
@@ -168,7 +198,8 @@ const VendorDetails = () => {
 
     }
 
-    if (request.status === "REJECTED") {
+    if (vendor.status === "REJECTED" ||
+        vendor.status === "INACTIVE") {
 
       return (
         <XCircle
@@ -194,13 +225,19 @@ const VendorDetails = () => {
 
   const getStatusClass = () => {
 
-    if (request.status === "APPROVED") {
+    if (
+      vendor.status === "APPROVED" ||
+      vendor.status === "ACTIVE"
+    ) {
 
       return "bg-green-500/10 text-green-400";
 
     }
 
-    if (request.status === "REJECTED") {
+    if (
+      vendor.status === "REJECTED" ||
+      vendor.status === "INACTIVE"
+    ) {
 
       return "bg-red-500/10 text-red-400";
 
@@ -227,9 +264,12 @@ const VendorDetails = () => {
 
         <ArrowLeft size={18} />
 
-        Back to Vendor Requests
+        {isVendorRequest
+          ? "Back to Vendor Requests"
+          : "Back to Vendors"}
 
       </button>
+
 
       {/* HEADER */}
 
@@ -252,21 +292,23 @@ const VendorDetails = () => {
 
               <h1 className="text-2xl font-bold">
 
-                {request.businessName ||
-                  "Vendor Request"}
+                {vendor.businessName ||
+                  "Vendor"}
 
               </h1>
 
               <p className="text-sm text-gray-500 mt-1">
 
-                Vendor Request ID:{" "}
-                {request.requestId}
+                {isVendorRequest
+                  ? `Vendor Request ID: ${vendor.requestId}`
+                  : `Vendor ID: ${vendor.id || vendor.userId}`}
 
               </p>
 
             </div>
 
           </div>
+
 
           {/* STATUS */}
 
@@ -276,13 +318,14 @@ const VendorDetails = () => {
 
             {getStatusIcon()}
 
-            {request.status}
+            {vendor.status}
 
           </div>
 
         </div>
 
       </div>
+
 
       {/* OWNER INFORMATION */}
 
@@ -299,30 +342,37 @@ const VendorDetails = () => {
           <Info
             icon={User}
             label="Owner Name"
-            value={request.name}
+            value={
+              vendor.name ||
+              vendor.ownerName
+            }
           />
 
           <Info
             icon={Hash}
             label="User ID"
-            value={request.userId}
+            value={
+              vendor.userId ||
+              vendor.id
+            }
           />
 
           <Info
             icon={Mail}
             label="Email"
-            value={request.email}
+            value={vendor.email}
           />
 
           <Info
             icon={Phone}
             label="Phone"
-            value={request.phone}
+            value={vendor.phone}
           />
 
         </div>
 
       </div>
+
 
       {/* BUSINESS INFORMATION */}
 
@@ -339,24 +389,25 @@ const VendorDetails = () => {
           <Info
             icon={Store}
             label="Business Name"
-            value={request.businessName}
+            value={vendor.businessName}
           />
 
           <Info
             icon={FileText}
             label="GST Number"
-            value={request.gstNumber}
+            value={vendor.gstNumber}
           />
 
           <Info
             icon={CreditCard}
             label="License Number"
-            value={request.licenseNumber}
+            value={vendor.licenseNumber}
           />
 
         </div>
 
       </div>
+
 
       {/* BUSINESS ADDRESS */}
 
@@ -373,7 +424,7 @@ const VendorDetails = () => {
           <Info
             icon={MapPin}
             label="Address"
-            value={request.businessAddress}
+            value={vendor.businessAddress}
           />
 
           <div className="grid md:grid-cols-3 gap-5">
@@ -381,19 +432,19 @@ const VendorDetails = () => {
             <Info
               icon={MapPin}
               label="City"
-              value={request.city}
+              value={vendor.city}
             />
 
             <Info
               icon={MapPin}
               label="State"
-              value={request.state}
+              value={vendor.state}
             />
 
             <Info
               icon={Hash}
               label="Pincode"
-              value={request.pincode}
+              value={vendor.pincode}
             />
 
           </div>
@@ -402,34 +453,44 @@ const VendorDetails = () => {
 
       </div>
 
-      {/* REQUEST INFORMATION */}
+
+      {/* REQUEST / VENDOR INFORMATION */}
 
       <div className="bg-[#151515] border border-white/10 rounded-2xl p-6">
 
         <h2 className="text-lg font-semibold mb-5">
 
-          Request Information
+          {isVendorRequest
+            ? "Request Information"
+            : "Vendor Information"}
 
         </h2>
 
         <div className="grid md:grid-cols-2 gap-5">
 
-          <Info
-            icon={Hash}
-            label="Request ID"
-            value={request.requestId}
-          />
+          {isVendorRequest && (
+
+            <Info
+              icon={Hash}
+              label="Request ID"
+              value={vendor.requestId}
+            />
+
+          )}
 
           <Info
             icon={Hash}
             label="User ID"
-            value={request.userId}
+            value={
+              vendor.userId ||
+              vendor.id
+            }
           />
 
           <Info
             icon={Clock}
             label="Status"
-            value={request.status}
+            value={vendor.status}
           />
 
         </div>
@@ -441,6 +502,7 @@ const VendorDetails = () => {
   );
 
 };
+
 
 // ==========================================
 // INFO COMPONENT

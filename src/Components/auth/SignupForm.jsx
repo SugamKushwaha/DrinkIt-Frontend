@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-
-import {
-  User,
-  Mail,
-  Phone,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-} from "lucide-react";
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 
@@ -66,7 +57,6 @@ const SignupForm = ({ onSignup }) => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-
   setError("");
   setErrors({});
 
