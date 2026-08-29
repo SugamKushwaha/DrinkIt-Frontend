@@ -1,21 +1,45 @@
 import React, { useState } from "react";
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+} from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
 
 const SignupForm = ({ onSignup }) => {
   const { register } = useAuth();
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+  // ==========================================
+  // PASSWORD VISIBILITY
+  // ==========================================
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
 
+  // ==========================================
+  // LOADING
+  // ==========================================
+
   const [loading, setLoading] = useState(false);
 
+  // ==========================================
+  // ERRORS
+  // ==========================================
+
   const [error, setError] = useState("");
+
   const [errors, setErrors] = useState({});
+
+  // ==========================================
+  // FORM DATA
+  // ==========================================
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,210 +50,317 @@ const SignupForm = ({ onSignup }) => {
   });
 
   // ==========================================
-  // CHANGE
+  // HANDLE CHANGE
   // ==========================================
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  const {
-    name,
-    value
-  } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
+    // ------------------------------------------
+    // Clear only this field's error
+    // ------------------------------------------
 
-  // Clear field-specific error
-  setErrors((prev) => ({
-    ...prev,
-    [name]: "",
-  }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
 
-  // Clear general error
-  setError("");
-};
+    // ------------------------------------------
+    // Clear general error
+    // ------------------------------------------
+
+    setError("");
+  };
 
   // ==========================================
   // SUBMIT
   // ==========================================
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setErrors({});
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // ==========================================
-  // FRONTEND VALIDATION
-  // ==========================================
+    // ------------------------------------------
+    // IMPORTANT:
+    // Do not allow another request while loading
+    // ------------------------------------------
 
-  const frontendErrors = {};
-
-  if (!formData.name.trim()) {
-    frontendErrors.name = "Name is required";
-  }
-
-  if (!formData.email.trim()) {
-    frontendErrors.email = "Email is required";
-  }
-
-  if (!formData.phone.trim()) {
-    frontendErrors.phone = "Phone is required";
-  }
-
-  if (!formData.password.trim()) {
-    frontendErrors.password = "Password is required";
-  }
-
-  if (
-    formData.password &&
-    formData.password.length < 6
-  ) {
-    frontendErrors.password =
-      "Password must contain at least 6 characters";
-  }
-
-  if (!formData.confirmPassword.trim()) {
-    frontendErrors.confirmPassword =
-      "Confirm password is required";
-  }
-
-  if (
-    formData.password &&
-    formData.confirmPassword &&
-    formData.password !== formData.confirmPassword
-  ) {
-    frontendErrors.confirmPassword =
-      "Passwords do not match";
-  }
-
-  // ==========================================
-  // STOP IF FRONTEND VALIDATION FAILED
-  // ==========================================
-
-  if (Object.keys(frontendErrors).length > 0) {
-    setErrors(frontendErrors);
-    return;
-  }
-
-  // ==========================================
-  // BACKEND REQUEST
-  // ==========================================
-
-  try {
-    setLoading(true);
-
-    const registerData = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      phone: formData.phone.trim(),
-      password: formData.password,
-    };
-
-    const data = await register(registerData);
-
-    console.log(
-      "Registration successful:",
-      data
-    );
-
-    if (onSignup) {
-      onSignup(data);
+    if (loading) {
+      return;
     }
 
-  }catch (error) {
+    // ------------------------------------------
+    // Clear previous errors
+    // ------------------------------------------
 
-  console.error(
-    "Registration error:",
-    error
-  );
+    setError("");
+    setErrors({});
 
-  console.error(
-    "Backend response:",
-    error.response?.data
-  );
+    // ==========================================
+    // FRONTEND VALIDATION
+    // ==========================================
 
-  // ==========================================
-  // BACKEND VALIDATION / BUSINESS ERRORS
-  // ==========================================
+    const frontendErrors = {};
 
-  if (
-    error.response?.status === 400 ||
-    error.response?.status === 409
-  ) {
+    // NAME
 
-    const backendErrors =
-      error.response.data;
+    if (!formData.name.trim()) {
+      frontendErrors.name = "Name is required";
+    }
 
-    console.log(
-      "Backend errors:",
-      backendErrors
-    );
+    // EMAIL
 
-    // Backend returned:
-    //
-    // {
-    //   email: "Email is already registered"
-    // }
+    if (!formData.email.trim()) {
+      frontendErrors.email = "Email is required";
+    }
 
-    if (
-      backendErrors &&
-      typeof backendErrors === "object"
+    // PHONE
+
+    if (!formData.phone.trim()) {
+      frontendErrors.phone = "Phone is required";
+    }
+
+    // PASSWORD
+
+    if (!formData.password.trim()) {
+      frontendErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      frontendErrors.password =
+        "Password must contain at least 6 characters";
+    }
+
+    // CONFIRM PASSWORD
+
+    if (!formData.confirmPassword.trim()) {
+      frontendErrors.confirmPassword =
+        "Confirm password is required";
+    } else if (
+      formData.password &&
+      formData.password !== formData.confirmPassword
     ) {
-
-      setErrors(backendErrors);
-
-      setError("");
+      frontendErrors.confirmPassword =
+        "Passwords do not match";
     }
 
-    else {
+    // ==========================================
+    // STOP IF FRONTEND VALIDATION FAILED
+    // ==========================================
 
-      setError(
-        "Please check your information."
+    if (Object.keys(frontendErrors).length > 0) {
+      setErrors(frontendErrors);
+
+      // IMPORTANT:
+      // Loading NEVER starts here.
+      // Therefore button remains CREATE ACCOUNT.
+      return;
+    }
+
+    // ==========================================
+    // BACKEND REQUEST STARTS HERE
+    // ==========================================
+
+    try {
+      // ------------------------------------------
+      // ONLY NOW show:
+      // CREATING ACCOUNT...
+      // ------------------------------------------
+
+      setLoading(true);
+
+      const registerData = {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        password: formData.password,
+      };
+
+      console.log("Register request:", registerData);
+
+      // ------------------------------------------
+      // API CALL
+      // ------------------------------------------
+
+      const data = await register(registerData);
+
+      console.log(
+        "Registration successful:",
+        data
       );
+
+      // ------------------------------------------
+      // SUCCESS
+      // ------------------------------------------
+
+      if (onSignup) {
+        onSignup(data);
+      }
+
+    } catch (error) {
+      console.error(
+        "Registration error:",
+        error
+      );
+
+      console.error(
+        "Backend response:",
+        error.response?.data
+      );
+
+      // ==========================================
+      // BACKEND VALIDATION / DUPLICATE ERRORS
+      // ==========================================
+
+      if (
+        error.response?.status === 400 ||
+        error.response?.status === 409
+      ) {
+        const backendErrors =
+          error.response?.data;
+
+        console.log(
+          "Backend errors:",
+          backendErrors
+        );
+
+        // ------------------------------------------
+        // Backend returned field errors
+        //
+        // {
+        //   email: "This email is already registered."
+        // }
+        //
+        // OR
+        //
+        // {
+        //   phone: "This phone number is already registered."
+        // }
+        // ------------------------------------------
+
+        if (
+          backendErrors &&
+          typeof backendErrors === "object"
+        ) {
+          const fieldErrors = {};
+
+          // EMAIL ERROR
+
+          if (backendErrors.email) {
+            fieldErrors.email =
+              backendErrors.email;
+          }
+
+          // PHONE ERROR
+
+          if (backendErrors.phone) {
+            fieldErrors.phone =
+              backendErrors.phone;
+          }
+
+          // NAME ERROR
+
+          if (backendErrors.name) {
+            fieldErrors.name =
+              backendErrors.name;
+          }
+
+          // PASSWORD ERROR
+
+          if (backendErrors.password) {
+            fieldErrors.password =
+              backendErrors.password;
+          }
+
+          // CONFIRM PASSWORD ERROR
+
+          if (backendErrors.confirmPassword) {
+            fieldErrors.confirmPassword =
+              backendErrors.confirmPassword;
+          }
+
+          // ------------------------------------------
+          // GENERAL ERROR
+          // ------------------------------------------
+
+          if (backendErrors.general) {
+            setError(
+              backendErrors.general
+            );
+          }
+
+          // ------------------------------------------
+          // Set field errors
+          // ------------------------------------------
+
+          setErrors(fieldErrors);
+        } else {
+          setError(
+            "Please check your information."
+          );
+        }
+      }
+
+      // ==========================================
+      // OTHER BACKEND ERROR
+      // ==========================================
+
+      else if (error.response) {
+        setError(
+          error.response.data?.message ||
+            error.response.data?.general ||
+            "Unable to create account."
+        );
+      }
+
+      // ==========================================
+      // SERVER NOT REACHABLE
+      // ==========================================
+
+      else if (error.request) {
+        setError(
+          "Backend server is not responding."
+        );
+      }
+
+      // ==========================================
+      // UNKNOWN ERROR
+      // ==========================================
+
+      else {
+        setError(
+          "Something went wrong."
+        );
+      }
+
+    } finally {
+      // ==========================================
+      // VERY IMPORTANT
+      // ==========================================
+      //
+      // Whether registration succeeds OR fails,
+      // loading becomes false.
+      //
+      // Therefore:
+      //
+      // SUCCESS → CREATE ACCOUNT
+      // DUPLICATE → CREATE ACCOUNT
+      // ERROR → CREATE ACCOUNT
+      //
+      // Only during API request:
+      // CREATING ACCOUNT...
+      //
+      // ==========================================
+
+      setLoading(false);
     }
-
-  }
-
-  // ==========================================
-  // OTHER BACKEND ERROR
-  // ==========================================
-
-  else if (error.response) {
-
-    setError(
-      error.response.data?.message ||
-      "Unable to create account."
-    );
-
-  }
+  };
 
   // ==========================================
-  // SERVER NOT REACHABLE
+  // RETURN
   // ==========================================
-
-  else if (error.request) {
-
-    setError(
-      "Backend server is not responding."
-    );
-
-  }
-
-  // ==========================================
-  // UNKNOWN ERROR
-  // ==========================================
-
-  else {
-
-    setError(
-      "Something went wrong."
-    );
-  }
-
-}
-};
 
   return (
     <form
@@ -237,7 +368,10 @@ const handleSubmit = async (e) => {
       noValidate
       className="space-y-4"
     >
-      {/* ERROR */}
+
+      {/* ======================================
+          GENERAL ERROR
+      ====================================== */}
 
       {error && (
         <div
@@ -256,7 +390,9 @@ const handleSubmit = async (e) => {
         </div>
       )}
 
-      {/* NAME */}
+      {/* ======================================
+          NAME
+      ====================================== */}
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
@@ -264,6 +400,7 @@ const handleSubmit = async (e) => {
         </label>
 
         <div className="relative">
+
           <User
             size={18}
             className="
@@ -282,12 +419,12 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             placeholder="Enter your full name"
             required
-            className="
+            disabled={loading}
+            className={`
               w-full
               h-12
               bg-[#080808]
               border
-              border-white/10
               rounded-xl
               pl-11
               pr-4
@@ -295,17 +432,27 @@ const handleSubmit = async (e) => {
               text-white
               placeholder:text-gray-600
               focus:border-yellow-400
-            "
+              transition
+              ${
+                errors.name
+                  ? "border-red-500"
+                  : "border-white/10"
+              }
+            `}
           />
+
         </div>
+
         {errors.name && (
-  <p className="text-red-400 text-xs mt-2">
-    {errors.name}
-  </p>
-)}
+          <p className="text-red-400 text-xs mt-2">
+            {errors.name}
+          </p>
+        )}
       </div>
 
-      {/* EMAIL */}
+      {/* ======================================
+          EMAIL
+      ====================================== */}
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
@@ -313,6 +460,7 @@ const handleSubmit = async (e) => {
         </label>
 
         <div className="relative">
+
           <Mail
             size={18}
             className="
@@ -331,12 +479,12 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             placeholder="Enter your email"
             required
-            className="
+            disabled={loading}
+            className={`
               w-full
               h-12
               bg-[#080808]
               border
-              border-white/10
               rounded-xl
               pl-11
               pr-4
@@ -344,17 +492,27 @@ const handleSubmit = async (e) => {
               text-white
               placeholder:text-gray-600
               focus:border-yellow-400
-            "
+              transition
+              ${
+                errors.email
+                  ? "border-red-500"
+                  : "border-white/10"
+              }
+            `}
           />
+
         </div>
-      {errors.email && (
-  <p className="text-red-400 text-xs mt-2">
-    {errors.email}
-  </p>
-)}
+
+        {errors.email && (
+          <p className="text-red-400 text-xs mt-2">
+            {errors.email}
+          </p>
+        )}
       </div>
 
-      {/* PHONE */}
+      {/* ======================================
+          PHONE
+      ====================================== */}
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
@@ -362,6 +520,7 @@ const handleSubmit = async (e) => {
         </label>
 
         <div className="relative">
+
           <Phone
             size={18}
             className="
@@ -380,12 +539,12 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             placeholder="+91 XXXXX XXXXX"
             required
-            className="
+            disabled={loading}
+            className={`
               w-full
               h-12
               bg-[#080808]
               border
-              border-white/10
               rounded-xl
               pl-11
               pr-4
@@ -393,17 +552,27 @@ const handleSubmit = async (e) => {
               text-white
               placeholder:text-gray-600
               focus:border-yellow-400
-            "
+              transition
+              ${
+                errors.phone
+                  ? "border-red-500"
+                  : "border-white/10"
+              }
+            `}
           />
+
         </div>
+
         {errors.phone && (
-  <p className="text-red-400 text-xs mt-2">
-    {errors.phone}
-  </p>
-)}
+          <p className="text-red-400 text-xs mt-2">
+            {errors.phone}
+          </p>
+        )}
       </div>
 
-      {/* PASSWORD */}
+      {/* ======================================
+          PASSWORD
+      ====================================== */}
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
@@ -411,6 +580,7 @@ const handleSubmit = async (e) => {
         </label>
 
         <div className="relative">
+
           <Lock
             size={18}
             className="
@@ -433,29 +603,31 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             placeholder="Create a password"
             required
+            disabled={loading}
             className={`
-  w-full
-  h-12
-  bg-[#080808]
-  border
-  rounded-xl
-  pl-11
-  pr-12
-  outline-none
-  text-white
-  placeholder:text-gray-600
-  transition
-  ${
-    errors.password
-      ? "border-red-500"
-      : "border-white/10"
-  }
-  focus:border-yellow-400
-`}
+              w-full
+              h-12
+              bg-[#080808]
+              border
+              rounded-xl
+              pl-11
+              pr-12
+              outline-none
+              text-white
+              placeholder:text-gray-600
+              focus:border-yellow-400
+              transition
+              ${
+                errors.password
+                  ? "border-red-500"
+                  : "border-white/10"
+              }
+            `}
           />
 
           <button
             type="button"
+            disabled={loading}
             onClick={() =>
               setShowPassword(
                 !showPassword
@@ -475,15 +647,19 @@ const handleSubmit = async (e) => {
               <Eye size={18} />
             )}
           </button>
+
         </div>
+
         {errors.password && (
-  <p className="text-red-400 text-xs mt-2">
-    {errors.password}
-  </p>
-)}
+          <p className="text-red-400 text-xs mt-2">
+            {errors.password}
+          </p>
+        )}
       </div>
 
-      {/* CONFIRM PASSWORD */}
+      {/* ======================================
+          CONFIRM PASSWORD
+      ====================================== */}
 
       <div>
         <label className="block text-sm text-gray-300 mb-2">
@@ -491,6 +667,7 @@ const handleSubmit = async (e) => {
         </label>
 
         <div className="relative">
+
           <Lock
             size={18}
             className="
@@ -513,12 +690,12 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             placeholder="Confirm your password"
             required
-            className="
+            disabled={loading}
+            className={`
               w-full
               h-12
               bg-[#080808]
               border
-              border-white/10
               rounded-xl
               pl-11
               pr-12
@@ -526,11 +703,18 @@ const handleSubmit = async (e) => {
               text-white
               placeholder:text-gray-600
               focus:border-yellow-400
-            "
+              transition
+              ${
+                errors.confirmPassword
+                  ? "border-red-500"
+                  : "border-white/10"
+              }
+            `}
           />
 
           <button
             type="button"
+            disabled={loading}
             onClick={() =>
               setShowConfirmPassword(
                 !showConfirmPassword
@@ -550,36 +734,53 @@ const handleSubmit = async (e) => {
               <Eye size={18} />
             )}
           </button>
+
         </div>
+
         {errors.confirmPassword && (
-  <p className="text-red-400 text-xs mt-2">
-    {errors.confirmPassword}
-  </p>
-)}
+          <p className="text-red-400 text-xs mt-2">
+            {errors.confirmPassword}
+          </p>
+        )}
       </div>
 
-      {/* TERMS */}
+      {/* ======================================
+          TERMS
+      ====================================== */}
 
       <div className="flex gap-2 pt-1">
+
         <input
           type="checkbox"
           required
-          className="mt-1 accent-yellow-400"
+          disabled={loading}
+          className="
+            mt-1
+            accent-yellow-400
+          "
         />
 
         <p className="text-xs text-gray-500 leading-relaxed">
+
           I agree to DrinkIt's{" "}
+
           <span className="text-yellow-400">
             Terms & Conditions
-          </span>{" "}
-          and{" "}
+          </span>
+
+          {" "}and{" "}
+
           <span className="text-yellow-400">
             Privacy Policy
           </span>
+
         </p>
+
       </div>
 
-      {/* BUTTON */}
+      {/* ======================================
+          CREATE ACCOUNT BUTTON
+      ====================================== */}
 
       <button
         type="submit"
@@ -602,14 +803,32 @@ const handleSubmit = async (e) => {
           mt-2
         "
       >
-        {loading
-          ? "CREATING ACCOUNT..."
-          : "CREATE ACCOUNT"}
 
-        {!loading && (
-          <ArrowRight size={18} />
+        {loading ? (
+          <>
+            CREATING ACCOUNT...
+
+            <span
+              className="
+                w-4
+                h-4
+                border-2
+                border-black/30
+                border-t-black
+                rounded-full
+                animate-spin
+              "
+            />
+          </>
+        ) : (
+          <>
+            CREATE ACCOUNT
+            <ArrowRight size={18} />
+          </>
         )}
+
       </button>
+
     </form>
   );
 };

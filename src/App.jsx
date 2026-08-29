@@ -53,6 +53,7 @@ import AdminsPage from './pages/admin/AdminsPage'
 import AddAdminPage from './pages/admin/AddAdminPage'
 import UsersPage from './pages/admin/UsersPage'
 import AdminSettingsPage from './pages/admin/AdminSettingsPage'
+import ProtectedRoute from './route/ProtectedRoute';
 
 function App() {
   return (
@@ -65,7 +66,7 @@ function App() {
          <Route path="/shop" element={<Shop />} />
          <Route path="/product/:id" element={<ProductDetailsPage />}/>
          <Route path="/wishlist" element={<WishListPage />} />
-         <Route path="/cart" element={<CartPage />} />
+         <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
          <Route path="/checkout" element={<CheckoutPage />} />
          <Route path="/order-success" element={<OrderSuccessPage/>}/>
          <Route path="/orders" element={<MyOrders />} />

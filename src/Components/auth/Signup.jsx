@@ -4,39 +4,30 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../components/auth/AuthLayout";
 import SignupForm from "../../components/auth/SignupForm";
 
-import { useAuth } from "../../context/AuthContext";
-
 const Signup = () => {
   const navigate = useNavigate();
 
-  const { register } = useAuth();
+  // ==========================================
+  // SignupForm already calls register() itself
+  // and only invokes onSignup on success. The
+  // previous version called register() a SECOND
+  // time here, passing in the auth RESPONSE
+  // object (no phone/password fields) as if it
+  // were the form data. That crashed with a
+  // TypeError and showed "Registration failed"
+  // even though the account had already been
+  // created by the first (successful) call.
+  // ==========================================
 
-  const handleSignup = async (data) => {
-    try {
-      console.log("REGISTER DATA:", data);
+  const handleSignup = (response) => {
+    console.log("REGISTRATION SUCCESS:", response);
 
-      const response = await register(data);
-
-      console.log("REGISTRATION SUCCESS:", response);
-
-      navigate("/login", {
-        state: {
-          message:
-            "Account created successfully. Please login.",
-        },
-      });
-
-    } catch (error) {
-      console.error(
-        "REGISTRATION ERROR:",
-        error.response?.data || error.message
-      );
-
-      alert(
-        error.response?.data?.message ||
-        "Registration failed"
-      );
-    }
+    navigate("/login", {
+      state: {
+        message:
+          "Account created successfully. Please login.",
+      },
+    });
   };
 
   return (

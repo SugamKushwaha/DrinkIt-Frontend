@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   ArrowLeft,
@@ -26,6 +27,7 @@ import { addToCart, getCart } from "../../utils/cartUtils";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   // =====================================================
   // FIND PRODUCT
@@ -125,22 +127,41 @@ const [addedToCart, setAddedToCart] = useState(false);
   // =====================================================
 
   const handleAddToCart = () => {
-  if (!product.inStock) return;
 
+  // USER NOT LOGGED IN
+  if (!isAuthenticated) {
+
+    navigate("/login", {
+      state: {
+        message: "Please login to add products to your cart.",
+      },
+    });
+
+    return;
+  }
+
+  // PRODUCT OUT OF STOCK
+  if (!product.inStock) {
+    return;
+  }
+
+  // ADD PRODUCT
   addToCart(product);
 
+  // ADD EXTRA QUANTITY
   if (quantity > 1) {
+
     const cart = getCart();
 
     const updatedProduct = cart.find(
-      (item) => String(item.id) === String(product.id)
+      (item) =>
+        String(item.id) === String(product.id)
     );
 
     if (updatedProduct) {
-      const currentQuantity = updatedProduct.quantity;
 
       const finalQuantity =
-        currentQuantity + quantity - 1;
+        updatedProduct.quantity + quantity - 1;
 
       localStorage.setItem(
         "drinkit-cart",
@@ -156,7 +177,9 @@ const [addedToCart, setAddedToCart] = useState(false);
         )
       );
 
-      window.dispatchEvent(new Event("cartUpdated"));
+      window.dispatchEvent(
+        new Event("cartUpdated")
+      );
     }
   }
 

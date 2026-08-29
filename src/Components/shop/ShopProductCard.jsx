@@ -12,9 +12,11 @@ import {
   addToCart,
   getCart,
 } from "../../utils/cartUtils";
+import { useAuth } from "../../context/AuthContext";
 
 const ShopProductCard = ({ product }) => {
   const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
   // ================================
   // STATE
@@ -66,18 +68,28 @@ const ShopProductCard = ({ product }) => {
   // ADD TO CART
   // ================================
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
+ const handleAddToCart = (e) => {
 
-    if (addedToCart) {
-      navigate("/cart");
-      return;
-    }
+  // Stop parent div from opening product page
+  e.stopPropagation();
 
-    addToCart(product, 1);
+  // User is not logged in
+  if (!isAuthenticated) {
+    navigate("/login", {
+      state: {
+        message: "Please login to add products to your cart.",
+      },
+    });
 
-    setAddedToCart(true);
-  };
+    return;
+  }
+
+  // User is logged in → add product
+  addToCart(product);
+
+  // Change button to ADDED
+  setAdded(true);
+};
 
   // ================================
   // WISHLIST

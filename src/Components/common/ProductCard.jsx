@@ -1,6 +1,7 @@
 import { ShoppingCart, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   addToCart,
@@ -15,6 +16,8 @@ const ProductCard = ({
 }) => {
 
   const navigate = useNavigate();
+
+  const { isAuthenticated } = useAuth();
 
   const [added, setAdded] = useState(false);
 
@@ -54,15 +57,26 @@ const ProductCard = ({
 
   const handleAddToCart = (e) => {
 
-    // VERY IMPORTANT
-    // Prevent product card click
-    e.stopPropagation();
+  // Stop parent div from opening product page
+  e.stopPropagation();
 
-    addToCart(product);
+  // User is not logged in
+  if (!isAuthenticated) {
+    navigate("/login", {
+      state: {
+        message: "Please login to add products to your cart.",
+      },
+    });
 
-    setAdded(true);
+    return;
+  }
 
-  };
+  // User is logged in → add product
+  addToCart(product);
+
+  // Change button to ADDED
+  setAdded(true);
+};
 
 
   return (

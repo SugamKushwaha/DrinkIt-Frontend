@@ -9,7 +9,14 @@ import {
   getCart,
 } from "../../utils/cartUtils";
 
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const SnackCard = ({ product }) => {
+
+  const navigate = useNavigate();
+
+  const { isAuthenticated } = useAuth();
 
   // =====================================================
   // CART STATE
@@ -59,19 +66,34 @@ const SnackCard = ({ product }) => {
   // ADD TO CART
   // =====================================================
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
 
-    // Already added
-    if (added) {
+    // Prevent parent click/navigation
+    e.stopPropagation();
+
+    // =================================================
+    // USER NOT LOGGED IN
+    // =================================================
+
+    if (!isAuthenticated) {
+
+      navigate("/login", {
+        state: {
+          message:
+            "Please login to add products to your cart.",
+        },
+      });
+
       return;
     }
 
-    // Add product
+    // =================================================
+    // USER LOGGED IN
+    // =================================================
+
     addToCart(product);
 
-    // Change button
     setAdded(true);
-
   };
 
   // =====================================================
@@ -148,9 +170,7 @@ const SnackCard = ({ product }) => {
           "
         >
 
-          {/* =================================================
-              NAME
-          ================================================= */}
+          {/* NAME */}
 
           <h3
             className="
@@ -164,9 +184,7 @@ const SnackCard = ({ product }) => {
             {product.name}
           </h3>
 
-          {/* =================================================
-              PRICE
-          ================================================= */}
+          {/* PRICE */}
 
           <div className="flex items-center justify-between gap-1">
 
@@ -182,13 +200,12 @@ const SnackCard = ({ product }) => {
 
           </div>
 
-          {/* =================================================
-              ADD TO CART BUTTON
-          ================================================= */}
+          {/* ADD TO CART */}
 
           <div>
 
             <button
+              type="button"
               onClick={handleAddToCart}
               disabled={added}
               className={`
@@ -243,7 +260,6 @@ const SnackCard = ({ product }) => {
       </div>
 
     </div>
-
   );
 };
 
