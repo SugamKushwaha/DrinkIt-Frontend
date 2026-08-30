@@ -785,39 +785,14 @@ const SignupForm = ({ onSignup }) => {
       <button
         type="submit"
         disabled={loading}
-        className="
-          w-full
-          py-3.5
-          rounded-xl
-          bg-yellow-400
-          hover:bg-yellow-300
-          disabled:opacity-60
-          disabled:cursor-not-allowed
-          text-black
-          font-bold
-          flex
-          items-center
-          justify-center
-          gap-2
-          transition
-          mt-2
-        "
-      >
+        className="  w-full  py-3.5  rounded-xl  bg-yellow-400  hover:bg-yellow-300  disabled:opacity-60  disabled:cursor-not-allowed  text-black  font-bold  flex  items-center  justify-center  gap-2  transition  mt-  " >
 
         {loading ? (
           <>
             CREATING ACCOUNT...
 
             <span
-              className="
-                w-4
-                h-4
-                border-2
-                border-black/30
-                border-t-black
-                rounded-full
-                animate-spin
-              "
+              className=" w-4 h-4 border-2  border-black/30  border-t-black rounded-full  animate-spi "
             />
           </>
         ) : (
