@@ -485,29 +485,30 @@ const VendorRegistration = () => {
       // =================================================
 
       const requestData = {
-        businessName:
-          formData.storeName.trim(),
+  businessName:
+    formData.storeName.trim(),
 
-        businessAddress:
-          formData.address.trim(),
+  businessAddress:
+    formData.address.trim(),
 
-        city:
-          formData.city.trim(),
+  businessType:
+    formData.businessType.trim(), // ✅ ADD
 
-        state:
-          formData.state.trim(),
+  city:
+    formData.city.trim(),
 
-        pincode:
-          formData.pincode.trim(),
+  state:
+    formData.state.trim(),
 
-        gstNumber:
-          formData.gstNumber
-            ?.trim() || "",
+  pincode:
+    formData.pincode.trim(),
 
-        licenseNumber:
-          formData.licenseNumber
-            ?.trim() || "",
-      };
+  gstNumber:
+    formData.gstNumber?.trim() || "",
+
+  licenseNumber:
+    formData.licenseNumber?.trim() || "",
+};
 
       console.log(
         "Submitting vendor request:",

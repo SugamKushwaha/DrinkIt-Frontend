@@ -8,6 +8,7 @@ export const submitVendorRequest = async (data) => {
   const response = await api.post("/vendor-requests", {
     businessName: data.businessName?.trim() || "",
     businessAddress: data.businessAddress?.trim() || "",
+     businessType:data.businessType?.trim() ,
     city: data.city?.trim() || "",
     state: data.state?.trim() || "",
     pincode: data.pincode?.trim() || "",
