@@ -88,3 +88,95 @@ export const getVendor = async (id) => {
 
   return response.data;
 };
+
+
+// =====================================================
+// GET DELIVERY PARTNER REQUESTS
+// =====================================================
+
+
+// ==========================================
+// GET ALL DELIVERY PARTNERS
+// ==========================================
+
+export const getDeliveryPartners =
+  async () => {
+
+    const response = await api.get(
+      "/admin/delivery-partners"
+    );
+
+    return response.data;
+  };
+
+
+// ==========================================
+// GET DELIVERY PARTNER BY ID
+// ==========================================
+
+export const getDeliveryPartnerById =
+  async (id) => {
+
+    const response = await api.get(
+      `/admin/delivery-partners/${id}`
+    );
+
+    return response.data;
+  };
+
+  
+export const getDeliveryPartnerRequests = async () => {
+  const response = await api.get(
+    "/admin/delivery-partner-requests"
+  );
+
+  return response.data;
+};
+
+
+// =====================================================
+// GET DELIVERY PARTNER REQUEST BY ID
+// =====================================================
+
+export const getDeliveryPartnerRequestById = async (id) => {
+  const response = await api.get(
+    `/admin/delivery-partner-requests/${id}`
+  );
+
+  return response.data;
+};
+
+
+// =====================================================
+// APPROVE DELIVERY PARTNER
+// =====================================================
+
+export const approveDeliveryPartner = async (id) => {
+  const response = await api.put(
+    `/admin/delivery-partner-requests/${id}/approve`
+  );
+
+  return response.data;
+};
+
+
+// =====================================================
+// REJECT DELIVERY PARTNER
+// =====================================================
+
+export const rejectDeliveryPartner = async (
+  id,
+  reason
+) => {
+  const response = await api.put(
+    `/admin/delivery-partner-requests/${id}/reject`,
+    null,
+    {
+      params: {
+        reason,
+      },
+    }
+  );
+
+  return response.data;
+};
