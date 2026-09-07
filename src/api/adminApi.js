@@ -180,3 +180,68 @@ export const rejectDeliveryPartner = async (
 
   return response.data;
 };
+
+
+// ==========================================
+// GET ADMINS
+// ==========================================
+
+export const getAdmins = async () => {
+
+  const response =
+    await api.get("/admin/admins");
+
+  return response.data;
+};
+
+
+// ==========================================
+// GET ADMIN BY ID
+// ==========================================
+
+export const getAdminById = async (
+  id
+) => {
+
+  const response =
+    await api.get(
+      `/admin/admins/${id}`
+    );
+
+  return response.data;
+};
+
+
+// ==========================================
+// CREATE ADMIN
+// ==========================================
+
+export const createAdmin = async (
+  data
+) => {
+
+  const response =
+    await api.post(
+      "/admin/admins",
+      data
+    );
+
+  return response.data;
+};
+
+
+// ==========================================
+// DELETE ADMIN
+// ==========================================
+
+export const deleteAdmin = async (
+  id
+) => {
+
+  const response =
+    await api.delete(
+      `/admin/admins/${id}`
+    );
+
+  return response.data;
+};
