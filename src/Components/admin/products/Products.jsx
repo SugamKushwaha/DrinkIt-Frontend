@@ -13,60 +13,193 @@ import { useNavigate } from "react-router-dom";
 import {
   getAdminProducts,
   deleteAdminProduct,
-  updateAdminProduct,
-} from "../../../utils/adminStorage";
+  toggleAdminProductStatus,
+} from "../../../api/productApi";
+
 
 const Products = () => {
 
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
+
   const [search, setSearch] = useState("");
 
-  const load = () => {
-    setProducts(getAdminProducts());
+  const [loading, setLoading] = useState(true);
+
+
+  // =====================================================
+  // LOAD PRODUCTS
+  // =====================================================
+
+  const loadProducts = async () => {
+
+    try {
+
+      setLoading(true);
+
+      const data =
+        await getAdminProducts();
+
+      setProducts(data);
+
+    } catch (error) {
+
+      console.error(
+        "Failed to load products:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+        "Unable to load products."
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
   };
 
+
   useEffect(() => {
-    load();
+
+    loadProducts();
+
   }, []);
 
-  const removeProduct = (id) => {
 
-    if (!window.confirm("Delete this product?")) {
+  // =====================================================
+  // DELETE
+  // =====================================================
+
+  const removeProduct = async (id) => {
+
+    if (
+      !window.confirm(
+        "Delete this product?"
+      )
+    ) {
       return;
     }
 
-    deleteAdminProduct(id);
+    try {
 
-    load();
+      await deleteAdminProduct(id);
+
+      setProducts((prev) =>
+        prev.filter(
+          (product) =>
+            product.id !== id
+        )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Unable to delete product."
+      );
+    }
   };
 
-  const toggleProduct = (product) => {
 
-    updateAdminProduct(product.id, {
-      active: !product.active,
+  // =====================================================
+  // TOGGLE STATUS
+  // =====================================================
+
+  const toggleProduct = async (
+    product
+  ) => {
+
+    try {
+
+      const updated =
+        await toggleAdminProductStatus(
+          product.id
+        );
+
+      setProducts((prev) =>
+        prev.map((item) =>
+          item.id === updated.id
+            ? updated
+            : item
+        )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Unable to update product status."
+      );
+    }
+  };
+
+
+  // =====================================================
+  // SEARCH
+  // =====================================================
+
+  const filtered =
+    products.filter((product) => {
+
+      const value =
+        search.toLowerCase();
+
+      return (
+        product.name
+          ?.toLowerCase()
+          .includes(value) ||
+
+        product.category
+          ?.toLowerCase()
+          .includes(value) ||
+
+        product.brand
+          ?.toLowerCase()
+          .includes(value)
+      );
     });
 
-    load();
-  };
 
-  const filtered = products.filter((product) => {
+  // =====================================================
+  // LOADING
+  // =====================================================
 
-    const value = search.toLowerCase();
+  if (loading) {
 
     return (
-      product.name?.toLowerCase().includes(value) ||
-      product.category?.toLowerCase().includes(value) ||
-      product.brand?.toLowerCase().includes(value)
+      <div className="py-20 text-center text-gray-500">
+        Loading products...
+      </div>
     );
+  }
 
-  });
 
   return (
+
     <div className="space-y-6">
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
+      <div
+        className="
+          flex
+          flex-col
+          gap-4
+          sm:flex-row
+          sm:items-center
+          sm:justify-between
+        "
+      >
 
         <div>
 
@@ -74,31 +207,66 @@ const Products = () => {
             Products
           </h1>
 
-          <p className="text-gray-500 mt-1">
+          <p className="mt-1 text-gray-500">
             Manage products displayed in DrinkIt.
           </p>
 
         </div>
 
+
         <button
           onClick={() =>
-            navigate("/admin/products/add")
+            navigate(
+              "/admin/products/add"
+            )
           }
-          className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 flex items-center justify-center gap-2"
+          className="
+            flex
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            bg-red-600
+            px-5
+            py-3
+            hover:bg-red-700
+          "
         >
+
           <Plus size={18} />
+
           Add Product
+
         </button>
 
       </div>
 
-      <div className="bg-[#151515] border border-white/10 rounded-2xl p-4">
+
+      {/* =================================================
+          SEARCH
+      ================================================= */}
+
+      <div
+        className="
+          rounded-2xl
+          border
+          border-white/10
+          bg-[#151515]
+          p-4
+        "
+      >
 
         <div className="relative">
 
           <Search
             size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+            className="
+              absolute
+              left-4
+              top-1/2
+              -translate-y-1/2
+              text-gray-500
+            "
           />
 
           <input
@@ -107,76 +275,208 @@ const Products = () => {
               setSearch(e.target.value)
             }
             placeholder="Search products..."
-            className="w-full bg-black border border-white/10 rounded-xl py-3 pl-11 pr-4 outline-none focus:border-red-500"
+            className="
+              w-full
+              rounded-xl
+              border
+              border-white/10
+              bg-black
+              py-3
+              pl-11
+              pr-4
+              outline-none
+              focus:border-red-500
+            "
           />
 
         </div>
 
       </div>
 
-      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
 
-        {filtered.map((product) => (
+      {/* =================================================
+          PRODUCT GRID
+      ================================================= */}
 
-          <div
-            key={product.id}
-            className="bg-[#151515] border border-white/10 rounded-2xl overflow-hidden"
-          >
+      <div
+        className="
+          grid
+          gap-5
+          sm:grid-cols-2
+          xl:grid-cols-3
+        "
+      >
 
-            <div className="h-52 bg-white flex items-center justify-center">
+        {filtered.map((product) => {
 
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <Package
-                  size={45}
-                  className="text-gray-300"
-                />
-              )}
+          const isActive =
+            product.status === "ACTIVE";
 
-            </div>
+          const isOutOfStock =
+            product.stock === 0;
 
-            <div className="p-5">
+          return (
 
-              <div className="flex justify-between gap-3">
+            <div
+              key={product.id}
+              className="
+                overflow-hidden
+                rounded-2xl
+                border
+                border-white/10
+                bg-[#151515]
+              "
+            >
 
-                <div>
 
-                  <h3 className="font-semibold">
-                    {product.name}
-                  </h3>
+              {/* IMAGE */}
 
-                  <p className="text-xs text-gray-500 mt-1">
-                    {product.category || "Uncategorized"}
-                  </p>
+              <div
+                className="
+                  flex
+                  h-52
+                  items-center
+                  justify-center
+                  bg-white
+                "
+              >
 
-                </div>
+                {product.image ? (
 
-                <span
-                  className={`text-xs px-2 py-1 rounded-full h-fit ${
-                    product.active
-                      ? "bg-green-500/10 text-green-400"
-                      : "bg-red-500/10 text-red-400"
-                  }`}
-                >
-                  {product.active
-                    ? "Active"
-                    : "Hidden"}
-                </span>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="
+                      h-full
+                      w-full
+                      object-contain
+                    "
+                  />
+
+                ) : (
+
+                  <Package
+                    size={45}
+                    className="text-gray-300"
+                  />
+
+                )}
 
               </div>
 
-              <div className="flex items-center justify-between mt-5">
 
-                <span className="font-bold">
-                  ₹{product.price || 0}
-                </span>
+              {/* CONTENT */}
 
-                <div className="flex gap-2">
+              <div className="p-5">
+
+
+                <div
+                  className="
+                    flex
+                    justify-between
+                    gap-3
+                  "
+                >
+
+                  <div>
+
+                    <h3 className="font-semibold">
+                      {product.name}
+                    </h3>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      {product.brand || ""}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                      {product.category || "Uncategorized"}
+                    </p>
+
+                  </div>
+
+
+                  {/* STATUS */}
+
+                  <span
+                    className={`
+                      h-fit
+                      rounded-full
+                      px-2
+                      py-1
+                      text-xs
+
+                      ${
+                        isOutOfStock
+                          ? "bg-red-500/10 text-red-400"
+                          : isActive
+                          ? "bg-green-500/10 text-green-400"
+                          : "bg-gray-500/10 text-gray-400"
+                      }
+                    `}
+                  >
+
+                    {isOutOfStock
+                      ? "Out of Stock"
+                      : isActive
+                      ? "Active"
+                      : "Hidden"}
+
+                  </span>
+
+                </div>
+
+
+                {/* PRICE */}
+
+                <div
+                  className="
+                    mt-5
+                    flex
+                    items-center
+                    justify-between
+                  "
+                >
+
+                  <div>
+
+                    <span className="font-bold">
+                      ₹{product.price || 0}
+                    </span>
+
+                    {product.oldPrice > 0 && (
+
+                      <span
+                        className="
+                          ml-2
+                          text-sm
+                          text-gray-500
+                          line-through
+                        "
+                      >
+                        ₹{product.oldPrice}
+                      </span>
+
+                    )}
+
+                  </div>
+
+
+                  <span className="text-xs text-gray-500">
+                    Stock: {product.stock}
+                  </span>
+
+                </div>
+
+
+                {/* ACTIONS */}
+
+                <div
+                  className="
+                    mt-5
+                    flex
+                    gap-2
+                  "
+                >
 
                   <button
                     onClick={() =>
@@ -184,29 +484,55 @@ const Products = () => {
                         `/admin/products/edit/${product.id}`
                       )
                     }
-                    className="p-2 rounded-lg bg-white/5"
+                    className="
+                      rounded-lg
+                      bg-white/5
+                      p-2
+                      hover:bg-white/10
+                    "
                   >
+
                     <Edit size={16} />
+
                   </button>
+
 
                   <button
                     onClick={() =>
                       toggleProduct(product)
                     }
-                    className="p-2 rounded-lg bg-white/5"
+                    className="
+                      rounded-lg
+                      bg-white/5
+                      px-3
+                      text-xs
+                      hover:bg-white/10
+                    "
                   >
-                    {product.active
+
+                    {isActive
                       ? "Hide"
                       : "Show"}
+
                   </button>
+
 
                   <button
                     onClick={() =>
-                      removeProduct(product.id)
+                      removeProduct(
+                        product.id
+                      )
                     }
-                    className="p-2 rounded-lg bg-red-500/10 text-red-400"
+                    className="
+                      rounded-lg
+                      bg-red-500/10
+                      p-2
+                      text-red-400
+                    "
                   >
+
                     <Trash2 size={16} />
+
                   </button>
 
                 </div>
@@ -215,20 +541,31 @@ const Products = () => {
 
             </div>
 
-          </div>
-
-        ))}
+          );
+        })}
 
       </div>
 
+
+      {/* EMPTY */}
+
       {filtered.length === 0 && (
-        <div className="text-center py-16 text-gray-500">
+
+        <div
+          className="
+            py-16
+            text-center
+            text-gray-500
+          "
+        >
           No products found.
         </div>
+
       )}
 
     </div>
   );
 };
+
 
 export default Products;

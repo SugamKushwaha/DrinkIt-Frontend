@@ -9,42 +9,27 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const VendorSidebar = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      path: "/vendor",
-    },
-    {
-      name: "Orders",
-      icon: ShoppingBag,
-      path: "/vendor/orders",
-    },
-    {
-      name: "Products",
-      icon: Package,
-      path: "/vendor/products",
-    },
-    {
-      name: "Inventory",
-      icon: Boxes,
-      path: "/vendor/inventory",
-    },
-    {
-      name: "Earnings",
-      icon: Wallet,
-      path: "/vendor/earnings",
-    },
-    {
-      name: "Profile",
-      icon: User,
-      path: "/vendor/profile",
-    },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/vendor",},
+    { name: "Orders", icon: ShoppingBag, path: "/vendor/orders",},
+    { name: "Products", icon: Package, path: "/vendor/products",},
+    {  name: "Inventory",  icon: Boxes, path: "/vendor/inventory",},
+    { name: "Earnings", icon: Wallet, path: "/vendor/earnings",},
+    { name: "Profile", icon: User, path: "/vendor/profile",},
   ];
+
+  const handleLogout = async () => {
+   
+    await logout();
+
+    navigate("/login");
+  };
 
   return (
     <aside className="hidden min-h-screen w-[250px] shrink-0 border-r border-gray-800 bg-[#080808] lg:block">
@@ -114,6 +99,7 @@ const VendorSidebar = () => {
       <div className="absolute bottom-0 w-[250px] border-t border-gray-800 p-4">
 
         <button
+         onClick={handleLogout}
           className="
             flex
             w-full

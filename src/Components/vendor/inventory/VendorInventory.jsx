@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   Package,
@@ -11,134 +11,301 @@ import {
   RefreshCcw,
 } from "lucide-react";
 
+import {
+  getVendorProducts,
+  updateVendorProduct,
+} from "../../../api/vendorApi";
+
 const VendorInventory = () => {
   // =====================================================
-  // PRODUCTS
+  // STATE
   // =====================================================
 
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Johnnie Walker Black Label",
-      category: "Whisky",
-      volume: "750 ML",
-      price: 3200,
-      stock: 18,
-      status: "ACTIVE",
-      image: "/images/products/black-label.png",
-    },
-
-    {
-      id: 2,
-      name: "Kingfisher Premium",
-      category: "Beer",
-      volume: "650 ML",
-      price: 180,
-      stock: 42,
-      status: "ACTIVE",
-      image: "/images/products/kingfisher.png",
-    },
-
-    {
-      id: 3,
-      name: "Belvedere Vodka",
-      category: "Vodka",
-      volume: "750 ML",
-      price: 4200,
-      stock: 8,
-      status: "ACTIVE",
-      image: "/images/products/belvedere.png",
-    },
-
-    {
-      id: 4,
-      name: "Sula Cabernet Sauvignon",
-      category: "Wine",
-      volume: "750 ML",
-      price: 850,
-      stock: 0,
-      status: "OUT_OF_STOCK",
-      image: "/images/products/sula.png",
-    },
-
-    {
-      id: 5,
-      name: "Lay's Classic",
-      category: "Snacks",
-      volume: "100 GM",
-      price: 40,
-      stock: 55,
-      status: "ACTIVE",
-      image: "/images/products/lays.png",
-    },
-  ]);
-
-  // =====================================================
-  // FILTER STATES
-  // =====================================================
+  const [products, setProducts] = useState([]);
 
   const [search, setSearch] = useState("");
+
   const [category, setCategory] = useState("ALL");
+
   const [stockFilter, setStockFilter] = useState("ALL");
 
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  // Stores products whose stock is being saved
+  const [savingId, setSavingId] = useState(null);
+
+  // Stores stock values changed by user but not yet saved
+  const [stockChanges, setStockChanges] = useState({});
+
   // =====================================================
-  // STOCK UPDATE
+  // LOAD VENDOR PRODUCTS
   // =====================================================
 
-  const updateStock = (id, change) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => {
-        if (product.id !== id) {
-          return product;
-        }
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const newStock = Math.max(
-          0,
-          product.stock + change
-        );
+      const data = await getVendorProducts();
 
-        return {
-          ...product,
+      console.log("Vendor inventory products:", data);
 
-          stock: newStock,
+      setProducts(Array.isArray(data) ? data : []);
 
-          status:
-            newStock === 0
-              ? "OUT_OF_STOCK"
-              : "ACTIVE",
-        };
-      })
+      // Clear unsaved changes after fresh DB load
+      setStockChanges({});
+    } catch (error) {
+      console.error(
+        "Unable to load vendor inventory:",
+        error
+      );
+
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Unable to load inventory.";
+
+      setError(message);
+
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  // =====================================================
+  // GET CURRENT STOCK
+  // =====================================================
+
+  const getCurrentStock = (product) => {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        stockChanges,
+        product.id
+      )
+    ) {
+      return stockChanges[product.id];
+    }
+
+    return Number(product.stock || 0);
+  };
+
+  // =====================================================
+  // CHANGE STOCK LOCALLY
+  // =====================================================
+
+  const setStockValue = (id, value) => {
+    const parsedValue = Number(value);
+
+    const newStock =
+      Number.isFinite(parsedValue) && parsedValue >= 0
+        ? Math.floor(parsedValue)
+        : 0;
+
+    setStockChanges((prev) => ({
+      ...prev,
+      [id]: newStock,
+    }));
+  };
+
+  // =====================================================
+  // INCREASE / DECREASE STOCK
+  // =====================================================
+
+  const updateStock = (product, change) => {
+    const currentStock = getCurrentStock(product);
+
+    const newStock = Math.max(
+      0,
+      currentStock + change
     );
+
+    setStockValue(product.id, newStock);
   };
 
   // =====================================================
   // DIRECT STOCK INPUT
   // =====================================================
 
-  const handleStockChange = (id, value) => {
-    const newStock = Math.max(
-      0,
-      Number(value) || 0
-    );
+  const handleStockChange = (product, value) => {
+    /*
+     * When the input is temporarily empty,
+     * don't immediately convert it to zero.
+     */
 
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => {
-        if (product.id !== id) {
-          return product;
-        }
+    if (value === "") {
+      setStockChanges((prev) => ({
+        ...prev,
+        [product.id]: "",
+      }));
 
-        return {
-          ...product,
+      return;
+    }
 
-          stock: newStock,
+    const parsedValue = Number(value);
 
-          status:
-            newStock === 0
-              ? "OUT_OF_STOCK"
-              : "ACTIVE",
-        };
-      })
-    );
+    if (
+      !Number.isFinite(parsedValue) ||
+      parsedValue < 0
+    ) {
+      return;
+    }
+
+    setStockChanges((prev) => ({
+      ...prev,
+      [product.id]: Math.floor(parsedValue),
+    }));
+  };
+
+  // =====================================================
+  // SAVE STOCK TO DATABASE
+  // =====================================================
+
+  const saveStock = async (product) => {
+    const stockValue = getCurrentStock(product);
+
+    if (stockValue === "") {
+      alert("Please enter a valid stock quantity.");
+      return;
+    }
+
+    const newStock = Number(stockValue);
+
+    if (
+      !Number.isFinite(newStock) ||
+      newStock < 0
+    ) {
+      alert("Please enter a valid stock quantity.");
+      return;
+    }
+
+    const oldStock = Number(product.stock || 0);
+
+    // No changes
+    if (newStock === oldStock) {
+      return;
+    }
+
+    try {
+      setSavingId(product.id);
+      setError("");
+
+      /*
+       * IMPORTANT:
+       *
+       * We use the SAME updateVendorProduct()
+       * API already used by your VendorProducts page.
+       *
+       * We preserve the complete product object and
+       * only change the stock.
+       */
+
+      const productData = {
+        name: product.name || "",
+
+        category: product.category || "Whisky",
+
+        volume: product.volume || "",
+
+        price: Number(product.price || 0),
+
+        stock: newStock,
+
+        image: product.image || "",
+
+        status: product.status || "ACTIVE",
+      };
+
+      console.log(
+        "Updating vendor product stock:",
+        product.id,
+        productData
+      );
+
+      const updatedProduct =
+        await updateVendorProduct(
+          product.id,
+          productData
+        );
+
+      console.log(
+        "Updated inventory product:",
+        updatedProduct
+      );
+
+      /*
+       * Update UI immediately from API response
+       * if backend returns the updated product.
+       */
+
+      if (updatedProduct) {
+        setProducts((prevProducts) =>
+          prevProducts.map((item) =>
+            item.id === product.id
+              ? {
+                  ...item,
+                  ...updatedProduct,
+                  stock: Number(
+                    updatedProduct.stock ??
+                      newStock
+                  ),
+                }
+              : item
+          )
+        );
+      } else {
+        /*
+         * If backend doesn't return the product,
+         * update local value and reload database.
+         */
+
+        setProducts((prevProducts) =>
+          prevProducts.map((item) =>
+            item.id === product.id
+              ? {
+                  ...item,
+                  stock: newStock,
+                }
+              : item
+          )
+        );
+      }
+
+      // Remove pending change
+      setStockChanges((prev) => {
+        const updated = { ...prev };
+
+        delete updated[product.id];
+
+        return updated;
+      });
+    } catch (error) {
+      console.error(
+        "Unable to update inventory stock:",
+        error
+      );
+
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Unable to update stock.";
+
+      setError(message);
+
+      alert(message);
+    } finally {
+      setSavingId(null);
+    }
   };
 
   // =====================================================
@@ -156,11 +323,13 @@ const VendorInventory = () => {
   // =====================================================
 
   const getStockStatus = (stock) => {
-    if (stock === 0) {
+    const quantity = Number(stock || 0);
+
+    if (quantity === 0) {
       return "OUT_OF_STOCK";
     }
 
-    if (stock < 10) {
+    if (quantity < 10) {
       return "LOW_STOCK";
     }
 
@@ -239,21 +408,26 @@ const VendorInventory = () => {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      const searchValue =
+        search.toLowerCase().trim();
+
       const matchesSearch =
         product.name
-          .toLowerCase()
-          .includes(search.toLowerCase());
+          ?.toLowerCase()
+          .includes(searchValue);
 
       const matchesCategory =
         category === "ALL" ||
         product.category === category;
 
-      const status =
-        getStockStatus(product.stock);
+      const stock = getCurrentStock(product);
+
+      const stockStatus =
+        getStockStatus(stock);
 
       const matchesStock =
         stockFilter === "ALL" ||
-        status === stockFilter;
+        stockStatus === stockFilter;
 
       return (
         matchesSearch &&
@@ -266,6 +440,7 @@ const VendorInventory = () => {
     search,
     category,
     stockFilter,
+    stockChanges,
   ]);
 
   // =====================================================
@@ -276,24 +451,52 @@ const VendorInventory = () => {
 
   const totalUnits = products.reduce(
     (total, product) =>
-      total + product.stock,
+      total + getCurrentStock(product),
     0
   );
 
   const inStockProducts = products.filter(
-    (product) => product.stock >= 10
+    (product) =>
+      getCurrentStock(product) >= 10
   ).length;
 
   const lowStockProducts = products.filter(
-    (product) =>
-      product.stock > 0 &&
-      product.stock < 10
+    (product) => {
+      const stock =
+        getCurrentStock(product);
+
+      return (
+        stock > 0 &&
+        stock < 10
+      );
+    }
   ).length;
 
   const outOfStockProducts =
     products.filter(
-      (product) => product.stock === 0
+      (product) =>
+        getCurrentStock(product) === 0
     ).length;
+
+  // =====================================================
+  // HAS UNSAVED CHANGE
+  // =====================================================
+
+  const hasStockChange = (product) => {
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        stockChanges,
+        product.id
+      )
+    ) {
+      return false;
+    }
+
+    return (
+      Number(stockChanges[product.id]) !==
+      Number(product.stock || 0)
+    );
+  };
 
   // =====================================================
   // MAIN UI
@@ -301,7 +504,6 @@ const VendorInventory = () => {
 
   return (
     <div className="min-h-screen bg-black px-4 py-6 text-white sm:px-6 md:px-10">
-
       <div className="mx-auto max-w-[1300px]">
 
         {/* =================================================
@@ -311,7 +513,6 @@ const VendorInventory = () => {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
           <div>
-
             <h1 className="text-3xl font-semibold">
               Inventory
             </h1>
@@ -319,38 +520,98 @@ const VendorInventory = () => {
             <p className="mt-2 text-gray-500">
               Manage product stock and inventory
             </p>
-
           </div>
 
-          <button
-            onClick={resetFilters}
+          <div className="flex gap-3">
+
+            {/* REFRESH */}
+
+            <button
+              onClick={loadProducts}
+              disabled={loading}
+              className="
+                flex
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-gray-800
+                bg-[#080808]
+                px-4
+                py-3
+                text-sm
+                font-semibold
+                text-gray-300
+                transition
+                hover:border-yellow-400
+                hover:text-yellow-400
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
+            >
+              <RefreshCcw
+                size={17}
+                className={
+                  loading
+                    ? "animate-spin"
+                    : ""
+                }
+              />
+
+              REFRESH
+            </button>
+
+            {/* RESET */}
+
+            <button
+              onClick={resetFilters}
+              className="
+                flex
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-gray-800
+                bg-[#080808]
+                px-4
+                py-3
+                text-sm
+                font-semibold
+                text-gray-300
+                transition
+                hover:border-yellow-400
+                hover:text-yellow-400
+              "
+            >
+              <RefreshCcw size={17} />
+
+              RESET FILTERS
+            </button>
+
+          </div>
+        </div>
+
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
+        {error && (
+          <div
             className="
-              flex
-              w-fit
-              items-center
-              gap-2
+              mb-5
               rounded-xl
               border
-              border-gray-800
-              bg-[#080808]
-              px-4
-              py-3
+              border-red-500/20
+              bg-red-500/10
+              px-5
+              py-4
               text-sm
-              font-semibold
-              text-gray-300
-              transition
-              hover:border-yellow-400
-              hover:text-yellow-400
+              text-red-400
             "
           >
-
-            <RefreshCcw size={17} />
-
-            RESET FILTERS
-
-          </button>
-
-        </div>
+            {error}
+          </div>
+        )}
 
         {/* =================================================
             INVENTORY STATS
@@ -360,75 +621,70 @@ const VendorInventory = () => {
 
           {/* TOTAL */}
 
-          <div className="
-            rounded-2xl
-            border
-            border-gray-800
-            bg-[#080808]
-            p-5
-          ">
-
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+            "
+          >
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-sm text-gray-500">
                   Total Products
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold">
-                  {totalProducts}
+                  {loading
+                    ? "..."
+                    : totalProducts}
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-600">
                   {totalUnits} total units
                 </p>
-
               </div>
 
-              <div className="
-                rounded-xl
-                bg-yellow-400/10
-                p-3
-              ">
-
+              <div className="rounded-xl bg-yellow-400/10 p-3">
                 <Package
                   size={24}
                   className="text-yellow-400"
                 />
-
               </div>
 
             </div>
-
           </div>
 
           {/* IN STOCK */}
 
-          <div className="
-            rounded-2xl
-            border
-            border-gray-800
-            bg-[#080808]
-            p-5
-          ">
-
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+            "
+          >
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-sm text-gray-500">
                   In Stock
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold text-green-400">
-                  {inStockProducts}
+                  {loading
+                    ? "..."
+                    : inStockProducts}
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-600">
                   Healthy inventory
                 </p>
-
               </div>
 
               <CheckCircle2
@@ -437,35 +693,35 @@ const VendorInventory = () => {
               />
 
             </div>
-
           </div>
 
           {/* LOW STOCK */}
 
-          <div className="
-            rounded-2xl
-            border
-            border-gray-800
-            bg-[#080808]
-            p-5
-          ">
-
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+            "
+          >
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-sm text-gray-500">
                   Low Stock
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold text-yellow-400">
-                  {lowStockProducts}
+                  {loading
+                    ? "..."
+                    : lowStockProducts}
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-600">
                   Needs restocking
                 </p>
-
               </div>
 
               <AlertTriangle
@@ -474,35 +730,35 @@ const VendorInventory = () => {
               />
 
             </div>
-
           </div>
 
           {/* OUT OF STOCK */}
 
-          <div className="
-            rounded-2xl
-            border
-            border-gray-800
-            bg-[#080808]
-            p-5
-          ">
-
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-800
+              bg-[#080808]
+              p-5
+            "
+          >
             <div className="flex items-center justify-between">
 
               <div>
-
                 <p className="text-sm text-gray-500">
                   Out of Stock
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold text-red-400">
-                  {outOfStockProducts}
+                  {loading
+                    ? "..."
+                    : outOfStockProducts}
                 </h2>
 
                 <p className="mt-1 text-xs text-gray-600">
                   Products unavailable
                 </p>
-
               </div>
 
               <XCircle
@@ -511,7 +767,6 @@ const VendorInventory = () => {
               />
 
             </div>
-
           </div>
 
         </div>
@@ -520,18 +775,20 @@ const VendorInventory = () => {
             FILTER BAR
         ================================================= */}
 
-        <div className="
-          mb-5
-          flex
-          flex-col
-          gap-4
-          rounded-2xl
-          border
-          border-gray-800
-          bg-[#080808]
-          p-4
-          md:flex-row
-        ">
+        <div
+          className="
+            mb-5
+            flex
+            flex-col
+            gap-4
+            rounded-2xl
+            border
+            border-gray-800
+            bg-[#080808]
+            p-4
+            md:flex-row
+          "
+        >
 
           {/* SEARCH */}
 
@@ -594,7 +851,6 @@ const VendorInventory = () => {
               focus:border-yellow-400
             "
           >
-
             <option value="ALL">
               All Categories
             </option>
@@ -615,10 +871,17 @@ const VendorInventory = () => {
               Wine
             </option>
 
+            <option value="Rum">
+              Rum
+            </option>
+
+            <option value="Gin">
+              Gin
+            </option>
+
             <option value="Snacks">
               Snacks
             </option>
-
           </select>
 
           {/* STOCK FILTER */}
@@ -641,7 +904,6 @@ const VendorInventory = () => {
               focus:border-yellow-400
             "
           >
-
             <option value="ALL">
               All Stock
             </option>
@@ -657,7 +919,6 @@ const VendorInventory = () => {
             <option value="OUT_OF_STOCK">
               Out of Stock
             </option>
-
           </select>
 
         </div>
@@ -666,73 +927,104 @@ const VendorInventory = () => {
             INVENTORY TABLE
         ================================================= */}
 
-        <div className="
-          overflow-hidden
-          rounded-2xl
-          border
-          border-gray-800
-          bg-[#080808]
-        ">
+        <div
+          className="
+            overflow-hidden
+            rounded-2xl
+            border
+            border-gray-800
+            bg-[#080808]
+          "
+        >
 
           {/* TABLE HEADER */}
 
-          <div className="
-            hidden
-            grid-cols-[2fr_1fr_1fr_1.4fr_1.2fr_160px]
-            gap-4
-            border-b
-            border-gray-800
-            px-5
-            py-4
-            text-xs
-            uppercase
-            tracking-wider
-            text-gray-500
-            lg:grid
-          ">
-
+          <div
+            className="
+              hidden
+              grid-cols-[2fr_1fr_1fr_1.4fr_1.2fr_160px]
+              gap-4
+              border-b
+              border-gray-800
+              px-5
+              py-4
+              text-xs
+              uppercase
+              tracking-wider
+              text-gray-500
+              lg:grid
+            "
+          >
             <span>Product</span>
-
             <span>Category</span>
-
             <span>Price</span>
-
             <span>Stock</span>
-
             <span>Status</span>
-
             <span>Update</span>
-
           </div>
 
-          {/* PRODUCTS */}
+          {/* =================================================
+              LOADING
+          ================================================= */}
 
-          <div>
+          {loading ? (
+            <div className="p-12 text-center">
 
-            {filteredProducts.length === 0 ? (
+              <RefreshCcw
+                size={35}
+                className="mx-auto mb-4 animate-spin text-yellow-400"
+              />
 
-              <div className="p-12 text-center">
+              <p className="text-gray-500">
+                Loading inventory...
+              </p>
 
-                <Package
-                  size={42}
-                  className="mx-auto mb-4 text-gray-600"
-                />
+            </div>
+          ) : filteredProducts.length === 0 ? (
 
-                <h3 className="font-semibold">
-                  No Products Found
-                </h3>
+            /* =================================================
+                EMPTY
+            ================================================= */
 
-                <p className="mt-2 text-sm text-gray-500">
-                  Try changing your filters.
-                </p>
+            <div className="p-12 text-center">
 
-              </div>
+              <Package
+                size={42}
+                className="mx-auto mb-4 text-gray-600"
+              />
 
-            ) : (
+              <h3 className="font-semibold">
+                No Products Found
+              </h3>
 
-              filteredProducts.map(
-                (product) => (
+              <p className="mt-2 text-sm text-gray-500">
+                {products.length === 0
+                  ? "You have not added any products yet."
+                  : "Try changing your filters."}
+              </p>
 
+            </div>
+
+          ) : (
+
+            /* =================================================
+                PRODUCTS
+            ================================================= */
+
+            <div>
+
+              {filteredProducts.map((product) => {
+
+                const stock =
+                  getCurrentStock(product);
+
+                const saving =
+                  savingId === product.id;
+
+                const changed =
+                  hasStockChange(product);
+
+                return (
                   <div
                     key={product.id}
                     className="
@@ -743,59 +1035,70 @@ const VendorInventory = () => {
                     "
                   >
 
-                    {/* DESKTOP */}
+                    {/* =================================================
+                        DESKTOP
+                    ================================================= */}
 
-                    <div className="
-                      hidden
-                      grid-cols-[2fr_1fr_1fr_1.4fr_1.2fr_160px]
-                      items-center
-                      gap-4
-                      lg:grid
-                    ">
+                    <div
+                      className="
+                        hidden
+                        grid-cols-[2fr_1fr_1fr_1.4fr_1.2fr_160px]
+                        items-center
+                        gap-4
+                        lg:grid
+                      "
+                    >
 
                       {/* PRODUCT */}
 
                       <div className="flex items-center gap-4">
 
-                        <div className="
-                          flex
-                          h-[65px]
-                          w-[65px]
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-xl
-                          bg-[#151515]
-                          p-2
-                        ">
+                        <div
+                          className="
+                            flex
+                            h-[65px]
+                            w-[65px]
+                            shrink-0
+                            items-center
+                            justify-center
+                            overflow-hidden
+                            rounded-xl
+                            bg-[#151515]
+                            p-2
+                          "
+                        >
 
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="
-                              h-full
-                              w-full
-                              object-contain
-                            "
-                          />
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="
+                                h-full
+                                w-full
+                                object-contain
+                              "
+                              onError={(e) => {
+                                e.currentTarget.style.display =
+                                  "none";
+                              }}
+                            />
+                          ) : (
+                            <Package
+                              size={25}
+                              className="text-gray-600"
+                            />
+                          )}
 
                         </div>
 
                         <div className="min-w-0">
 
-                          <h3 className="
-                            truncate
-                            font-medium
-                          ">
+                          <h3 className="truncate font-medium">
                             {product.name}
                           </h3>
 
-                          <p className="
-                            mt-1
-                            text-xs
-                            text-gray-500
-                          ">
-                            {product.volume}
+                          <p className="mt-1 text-xs text-gray-500">
+                            {product.volume || "-"}
                           </p>
 
                         </div>
@@ -805,7 +1108,7 @@ const VendorInventory = () => {
                       {/* CATEGORY */}
 
                       <div className="text-sm text-gray-400">
-                        {product.category}
+                        {product.category || "-"}
                       </div>
 
                       {/* PRICE */}
@@ -813,20 +1116,24 @@ const VendorInventory = () => {
                       <div className="font-semibold">
 
                         ₹
-                        {product.price.toLocaleString(
-                          "en-IN"
-                        )}
+                        {Number(
+                          product.price || 0
+                        ).toLocaleString("en-IN")}
 
                       </div>
 
-                      {/* STOCK CONTROL */}
+                      {/* STOCK */}
 
                       <div className="flex items-center gap-2">
 
+                        {/* MINUS */}
+
                         <button
+                          type="button"
+                          disabled={saving || stock === 0}
                           onClick={() =>
                             updateStock(
-                              product.id,
+                              product,
                               -1
                             )
                           }
@@ -843,20 +1150,23 @@ const VendorInventory = () => {
                             transition
                             hover:border-red-400
                             hover:text-red-400
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
                           "
                         >
-
                           <Minus size={15} />
-
                         </button>
+
+                        {/* INPUT */}
 
                         <input
                           type="number"
                           min="0"
-                          value={product.stock}
+                          value={stock}
+                          disabled={saving}
                           onChange={(e) =>
                             handleStockChange(
-                              product.id,
+                              product,
                               e.target.value
                             )
                           }
@@ -872,13 +1182,18 @@ const VendorInventory = () => {
                             text-white
                             outline-none
                             focus:border-yellow-400
+                            disabled:opacity-50
                           "
                         />
 
+                        {/* PLUS */}
+
                         <button
+                          type="button"
+                          disabled={saving}
                           onClick={() =>
                             updateStock(
-                              product.id,
+                              product,
                               1
                             )
                           }
@@ -895,11 +1210,11 @@ const VendorInventory = () => {
                             transition
                             hover:border-green-400
                             hover:text-green-400
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
                           "
                         >
-
                           <Plus size={15} />
-
                         </button>
 
                       </div>
@@ -919,19 +1234,17 @@ const VendorInventory = () => {
                             text-xs
                             font-semibold
                             ${getStockStatusStyle(
-                              product.stock
+                              stock
                             )}
                           `}
                         >
-
                           {getStockStatusIcon(
-                            product.stock
+                            stock
                           )}
 
                           {getStockStatusText(
-                            product.stock
+                            stock
                           )}
-
                         </span>
 
                       </div>
@@ -941,10 +1254,13 @@ const VendorInventory = () => {
                       <div>
 
                         <button
+                          type="button"
+                          disabled={
+                            saving ||
+                            !changed
+                          }
                           onClick={() =>
-                            alert(
-                              `${product.name} stock updated to ${product.stock} units`
-                            )
+                            saveStock(product)
                           }
                           className="
                             rounded-lg
@@ -958,9 +1274,13 @@ const VendorInventory = () => {
                             transition
                             hover:border-yellow-400
                             hover:text-yellow-400
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
                           "
                         >
-                          UPDATE
+                          {saving
+                            ? "SAVING..."
+                            : "UPDATE"}
                         </button>
 
                       </div>
@@ -973,44 +1293,51 @@ const VendorInventory = () => {
 
                     <div className="lg:hidden">
 
-                      <div className="
-                        flex
-                        items-start
-                        gap-4
-                      ">
+                      {/* PRODUCT INFO */}
 
-                        <div className="
-                          flex
-                          h-[65px]
-                          w-[65px]
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-xl
-                          bg-[#151515]
-                          p-2
-                        ">
+                      <div className="flex items-start gap-4">
 
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="
-                              h-full
-                              w-full
-                              object-contain
-                            "
-                          />
+                        <div
+                          className="
+                            flex
+                            h-[65px]
+                            w-[65px]
+                            shrink-0
+                            items-center
+                            justify-center
+                            overflow-hidden
+                            rounded-xl
+                            bg-[#151515]
+                            p-2
+                          "
+                        >
+
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="
+                                h-full
+                                w-full
+                                object-contain
+                              "
+                              onError={(e) => {
+                                e.currentTarget.style.display =
+                                  "none";
+                              }}
+                            />
+                          ) : (
+                            <Package
+                              size={25}
+                              className="text-gray-600"
+                            />
+                          )}
 
                         </div>
 
                         <div className="min-w-0 flex-1">
 
-                          <div className="
-                            flex
-                            items-start
-                            justify-between
-                            gap-3
-                          ">
+                          <div className="flex items-start justify-between gap-3">
 
                             <div>
 
@@ -1018,13 +1345,9 @@ const VendorInventory = () => {
                                 {product.name}
                               </h3>
 
-                              <p className="
-                                mt-1
-                                text-xs
-                                text-gray-500
-                              ">
-                                {product.category} •{" "}
-                                {product.volume}
+                              <p className="mt-1 text-xs text-gray-500">
+                                {product.category || "-"} •{" "}
+                                {product.volume || "-"}
                               </p>
 
                             </div>
@@ -1041,32 +1364,27 @@ const VendorInventory = () => {
                                 text-[10px]
                                 font-semibold
                                 ${getStockStatusStyle(
-                                  product.stock
+                                  stock
                                 )}
                               `}
                             >
-
                               {getStockStatusIcon(
-                                product.stock
+                                stock
                               )}
 
                               {getStockStatusText(
-                                product.stock
+                                stock
                               )}
-
                             </span>
 
                           </div>
 
-                          <p className="
-                            mt-3
-                            font-semibold
-                          ">
+                          <p className="mt-3 font-semibold">
 
                             ₹
-                            {product.price.toLocaleString(
-                              "en-IN"
-                            )}
+                            {Number(
+                              product.price || 0
+                            ).toLocaleString("en-IN")}
 
                           </p>
 
@@ -1076,133 +1394,179 @@ const VendorInventory = () => {
 
                       {/* MOBILE STOCK */}
 
-                      <div className="
-                        mt-5
-                        flex
-                        items-center
-                        justify-between
-                        gap-4
-                        rounded-xl
-                        bg-[#101010]
-                        p-3
-                      ">
+                      <div
+                        className="
+                          mt-5
+                          rounded-xl
+                          bg-[#101010]
+                          p-3
+                        "
+                      >
 
-                        <div>
+                        <div className="flex items-center justify-between gap-4">
 
-                          <p className="
+                          <div>
+
+                            <p className="text-xs text-gray-500">
+                              Stock
+                            </p>
+
+                            <p className="mt-1 text-sm font-semibold">
+                              {stock} units
+                            </p>
+
+                          </div>
+
+                          <div className="flex items-center gap-2">
+
+                            {/* MINUS */}
+
+                            <button
+                              type="button"
+                              disabled={
+                                saving ||
+                                stock === 0
+                              }
+                              onClick={() =>
+                                updateStock(
+                                  product,
+                                  -1
+                                )
+                              }
+                              className="
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                border-gray-800
+                                text-gray-400
+                                transition
+                                hover:border-red-400
+                                hover:text-red-400
+                                disabled:cursor-not-allowed
+                                disabled:opacity-40
+                              "
+                            >
+                              <Minus size={15} />
+                            </button>
+
+                            {/* INPUT */}
+
+                            <input
+                              type="number"
+                              min="0"
+                              value={stock}
+                              disabled={saving}
+                              onChange={(e) =>
+                                handleStockChange(
+                                  product,
+                                  e.target.value
+                                )
+                              }
+                              className="
+                                h-9
+                                w-[60px]
+                                rounded-lg
+                                border
+                                border-gray-800
+                                bg-[#080808]
+                                text-center
+                                text-sm
+                                text-white
+                                outline-none
+                                focus:border-yellow-400
+                                disabled:opacity-50
+                              "
+                            />
+
+                            {/* PLUS */}
+
+                            <button
+                              type="button"
+                              disabled={saving}
+                              onClick={() =>
+                                updateStock(
+                                  product,
+                                  1
+                                )
+                              }
+                              className="
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                border-gray-800
+                                text-gray-400
+                                transition
+                                hover:border-green-400
+                                hover:text-green-400
+                                disabled:cursor-not-allowed
+                                disabled:opacity-40
+                              "
+                            >
+                              <Plus size={15} />
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                        {/* MOBILE UPDATE */}
+
+                        <button
+                          type="button"
+                          disabled={
+                            saving ||
+                            !changed
+                          }
+                          onClick={() =>
+                            saveStock(product)
+                          }
+                          className="
+                            mt-3
+                            w-full
+                            rounded-lg
+                            border
+                            border-gray-800
+                            px-4
+                            py-2.5
                             text-xs
-                            text-gray-500
-                          ">
-                            Stock
-                          </p>
-
-                          <p className="
-                            mt-1
-                            text-sm
                             font-semibold
-                          ">
-                            {product.stock} units
-                          </p>
-
-                        </div>
-
-                        <div className="
-                          flex
-                          items-center
-                          gap-2
-                        ">
-
-                          <button
-                            onClick={() =>
-                              updateStock(
-                                product.id,
-                                -1
-                              )
-                            }
-                            className="
-                              flex
-                              h-9
-                              w-9
-                              items-center
-                              justify-center
-                              rounded-lg
-                              border
-                              border-gray-800
-                              text-gray-400
-                              hover:border-red-400
-                              hover:text-red-400
-                            "
-                          >
-                            <Minus size={15} />
-                          </button>
-
-                          <input
-                            type="number"
-                            min="0"
-                            value={product.stock}
-                            onChange={(e) =>
-                              handleStockChange(
-                                product.id,
-                                e.target.value
-                              )
-                            }
-                            className="
-                              h-9
-                              w-[60px]
-                              rounded-lg
-                              border
-                              border-gray-800
-                              bg-[#080808]
-                              text-center
-                              text-sm
-                              outline-none
-                              focus:border-yellow-400
-                            "
-                          />
-
-                          <button
-                            onClick={() =>
-                              updateStock(
-                                product.id,
-                                1
-                              )
-                            }
-                            className="
-                              flex
-                              h-9
-                              w-9
-                              items-center
-                              justify-center
-                              rounded-lg
-                              border
-                              border-gray-800
-                              text-gray-400
-                              hover:border-green-400
-                              hover:text-green-400
-                            "
-                          >
-                            <Plus size={15} />
-                          </button>
-
-                        </div>
+                            text-gray-300
+                            transition
+                            hover:border-yellow-400
+                            hover:text-yellow-400
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
+                          "
+                        >
+                          {saving
+                            ? "SAVING..."
+                            : changed
+                            ? "UPDATE STOCK"
+                            : "STOCK SAVED"}
+                        </button>
 
                       </div>
 
                     </div>
 
                   </div>
+                );
+              })}
 
-                )
-              )
-
-            )}
-
-          </div>
+            </div>
+          )}
 
         </div>
 
       </div>
-
     </div>
   );
 };
