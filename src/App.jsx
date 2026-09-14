@@ -47,6 +47,7 @@ import DeliveryPartnersPage from './pages/admin/DeliveryPartnersPage'
 import DeliveryRequestsPage from './pages/admin/DeliveryRequestsPage'
 import DeliveryPartnerDetailsPage from './pages/admin/DeliveryPartnerDetailsPage'
 import ProductsPage  from './pages/admin/ProductsPage'
+import ProductImagesPage from './pages/admin/ProductImagesPage'
 import AddProductPage from './pages/admin/AddProductPage'
 import EditProductPage from './pages/admin/EditProductPage'
 import AdminsPage from './pages/admin/AdminsPage'
@@ -116,6 +117,7 @@ function App() {
              <Route path="delivery-partners/requests" element={<DeliveryRequestsPage />}/>
              <Route path="delivery-partners/:id" element={<DeliveryPartnerDetailsPage />}/>
              <Route path="products" element={<ProductsPage />}/>
+             <Route path="products/images" element={<ProductImagesPage />}/>
              <Route path="products/add" element={<AddProductPage />}/>
              <Route path="products/edit/:id" element={<EditProductPage />}/>
              <Route path="admins" element={<AdminsPage />}/>

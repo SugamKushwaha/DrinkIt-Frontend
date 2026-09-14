@@ -6,6 +6,7 @@ import {
   Store,
   Truck,
   Package,
+  Images,
   ShieldCheck,
   Users,
   Settings,
@@ -28,13 +29,20 @@ const AdminLayout = () => {
     { label: "Vendor Management", path: "/admin/vendors", icon: Store },
     { label: "Delivery Partners", path: "/admin/delivery-partners", icon: Truck },
     { label: "Products", path: "/admin/products", icon: Package },
+    { label: "Product Images", path: "/admin/products/images", icon: Images },
     { label: "Admin Management", path: "/admin/admins", icon: ShieldCheck },
     { label: "Customers", path: "/admin/users", icon: Users },
     { label: "Settings", path: "/admin/settings", icon: Settings },
   ];
 
   const handleLogout = async () => {
-   
+    // This calls POST /auth/logout (clears the HttpOnly
+    // "drinkit-token" cookie on the backend) and resets
+    // `user` to null in AuthContext. The previous version
+    // only removed an unused localStorage key, so the
+    // session never actually ended — the admin stayed
+    // fully authenticated and showed up as logged in
+    // anywhere else in the app.
     await logout();
 
     navigate("/login");
