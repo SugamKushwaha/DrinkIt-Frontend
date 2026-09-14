@@ -337,7 +337,7 @@ const Products = () => {
                   h-52
                   items-center
                   justify-center
-                  bg-white
+                  bg-black
                 "
               >
 
