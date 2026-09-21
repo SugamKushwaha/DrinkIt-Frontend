@@ -6,35 +6,64 @@ import api from "./axios";
 
 export const getCategories = async () => {
   const response = await api.get("/categories");
+
   return response.data;
 };
 
 // =====================================================
-// ADMIN
+// ADMIN - GET ALL
 // =====================================================
 
 export const getAdminCategories = async () => {
   const response = await api.get("/categories/admin");
+
   return response.data;
 };
 
-export const createCategory = async (data) => {
+// =====================================================
+// ADMIN - GET ONE
+// =====================================================
+
+export const getAdminCategory = async (id) => {
+  const response = await api.get(
+    `/categories/admin/${id}`
+  );
+
+  return response.data;
+};
+
+// =====================================================
+// ADMIN - CREATE
+// =====================================================
+
+export const createCategory = async (formData) => {
   const response = await api.post(
     "/categories/admin",
-    data
+    formData
   );
 
   return response.data;
 };
 
-export const updateCategory = async (id, data) => {
+// =====================================================
+// ADMIN - UPDATE
+// =====================================================
+
+export const updateCategory = async (
+  id,
+  formData
+) => {
   const response = await api.put(
     `/categories/admin/${id}`,
-    data
+    formData
   );
 
   return response.data;
 };
+
+// =====================================================
+// ADMIN - DELETE
+// =====================================================
 
 export const deleteCategory = async (id) => {
   await api.delete(

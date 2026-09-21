@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
 const CategoryCard = ({ item }) => {
-
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/shop?category=${item.title.toLowerCase()}`);
+    navigate(
+      `/shop?category=${encodeURIComponent(
+        item.title
+      )}`
+    );
   };
 
   return (
@@ -20,12 +23,20 @@ const CategoryCard = ({ item }) => {
         border-gray-700
         bg-[#111]
         cursor-pointer
+        hover:border-yellow-500/50
+        transition
       "
     >
+
+      {/* IMAGE */}
 
       <img
         src={item.image}
         alt={item.title}
+        onError={(e) => {
+          e.currentTarget.src =
+            "/images/category-placeholder.png";
+        }}
         className="
           h-52
           w-full
@@ -36,7 +47,20 @@ const CategoryCard = ({ item }) => {
         "
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+      {/* OVERLAY */}
+
+      <div
+        className="
+          absolute
+          inset-0
+          bg-gradient-to-t
+          from-black
+          via-black/20
+          to-transparent
+        "
+      />
+
+      {/* TITLE */}
 
       <h2
         className="

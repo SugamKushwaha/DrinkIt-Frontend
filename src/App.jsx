@@ -55,6 +55,7 @@ import AddAdminPage from './pages/admin/AddAdminPage'
 import UsersPage from './pages/admin/UsersPage'
 import AdminSettingsPage from './pages/admin/AdminSettingsPage'
 import ProtectedRoute from './route/ProtectedRoute';
+import AdminCategories from './Components/admin/category/AdminCategories';
 
 function App() {
   return (
@@ -124,6 +125,7 @@ function App() {
              <Route path="admins/add" element={<AddAdminPage />}/>
              <Route path="users" element={<UsersPage />}/>
              <Route path="settings" element={<AdminSettingsPage />}/>
+             <Route path="/admin/categories" element={<AdminCategories />}/>
           </Route>
       </Routes>
     </BrowserRouter>
