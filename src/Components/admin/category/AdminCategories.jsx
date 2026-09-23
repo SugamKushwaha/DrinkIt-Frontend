@@ -48,10 +48,9 @@ const AdminCategories = () => {
     useState(null);
 
   const [form, setForm] = useState({
-    name: "",
+    categoryName: "",
     image: null,
     imagePreview: "",
-    active: true,
   });
 
   const fileInputRef =
@@ -118,10 +117,9 @@ const AdminCategories = () => {
 
   const resetForm = () => {
     setForm({
-      name: "",
+      categoryName: "",
       image: null,
       imagePreview: "",
-      active: true,
     });
 
     if (fileInputRef.current) {
@@ -145,17 +143,21 @@ const AdminCategories = () => {
 
   // =====================================================
   // OPEN EDIT
+  //
+  // NOTE: the backend upserts categories by name, with
+  // no separate rename endpoint. So the category name is
+  // locked while editing — only the image can be
+  // replaced. Renaming would silently create a second,
+  // duplicate category instead of updating this one.
   // =====================================================
 
   const openEdit = (category) => {
     setEditingId(category.id);
 
     setForm({
-      name: category.name || "",
+      categoryName: category.categoryName || "",
       image: null,
-      imagePreview: category.image || "",
-      active:
-        category.active !== false,
+      imagePreview: category.imageUrl || "",
     });
 
     setError("");
@@ -188,21 +190,10 @@ const AdminCategories = () => {
   const handleNameChange = (e) => {
     setForm((prev) => ({
       ...prev,
-      name: e.target.value,
+      categoryName: e.target.value,
     }));
 
     setError("");
-  };
-
-  // =====================================================
-  // ACTIVE CHANGE
-  // =====================================================
-
-  const handleActiveChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      active: e.target.checked,
-    }));
   };
 
   // =====================================================
@@ -266,7 +257,7 @@ const AdminCategories = () => {
           ? categories.find(
               (category) =>
                 category.id === editingId
-            )?.image || ""
+            )?.imageUrl || ""
           : "",
     }));
 
@@ -285,7 +276,7 @@ const AdminCategories = () => {
     setError("");
 
     // Validate name
-    if (!form.name.trim()) {
+    if (!form.categoryName.trim()) {
       setError(
         "Category name is required."
       );
@@ -293,10 +284,13 @@ const AdminCategories = () => {
       return;
     }
 
-    // Image required only during CREATE
-    if (!editingId && !form.image) {
+    // The backend requires an image on every
+    // upload call, whether creating or replacing.
+    if (!form.image) {
       setError(
-        "Please select a category image."
+        editingId
+          ? "Please select a new image to replace the current one."
+          : "Please select a category image."
       );
 
       return;
@@ -305,49 +299,15 @@ const AdminCategories = () => {
     try {
       setSaving(true);
 
-      // =================================================
-      // FORM DATA
-      // =================================================
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "name",
-        form.name.trim()
-      );
-
-      formData.append(
-        "active",
-        String(form.active)
-      );
-
-      // Add image only when selected
-      if (form.image) {
-        formData.append(
-          "image",
-          form.image
-        );
-      }
-
-      // =================================================
-      // UPDATE
-      // =================================================
-
       if (editingId) {
         await updateCategory(
-          editingId,
-          formData
+          form.categoryName.trim(),
+          form.image
         );
-      }
-
-      // =================================================
-      // CREATE
-      // =================================================
-
-      else {
+      } else {
         await createCategory(
-          formData
+          form.categoryName.trim(),
+          form.image
         );
       }
 
@@ -387,7 +347,7 @@ const AdminCategories = () => {
   ) => {
     const confirmed =
       window.confirm(
-        `Are you sure you want to delete "${category.name}"?`
+        `Are you sure you want to delete "${category.categoryName}"?`
       );
 
     if (!confirmed) return;
@@ -603,11 +563,11 @@ const AdminCategories = () => {
                     "
                   >
 
-                    {category.image ? (
+                    {category.imageUrl ? (
 
                       <img
-                        src={category.image}
-                        alt={category.name}
+                        src={category.imageUrl}
+                        alt={category.categoryName}
                         className="
                           w-full
                           h-full
@@ -649,7 +609,7 @@ const AdminCategories = () => {
                         font-semibold
                       "
                     >
-                      {category.name}
+                      {category.categoryName}
                     </h3>
 
                     <p
@@ -661,27 +621,6 @@ const AdminCategories = () => {
                     >
                       ID: {category.id}
                     </p>
-
-                    <span
-                      className={`
-                        inline-flex
-                        mt-2
-                        px-2.5
-                        py-1
-                        rounded-full
-                        text-xs
-                        font-medium
-                        ${
-                          category.active
-                            ? "bg-green-500/10 text-green-400"
-                            : "bg-red-500/10 text-red-400"
-                        }
-                      `}
-                    >
-                      {category.active
-                        ? "ACTIVE"
-                        : "INACTIVE"}
-                    </span>
 
                   </div>
 
@@ -713,7 +652,7 @@ const AdminCategories = () => {
                         hover:border-yellow-500/40
                         transition
                       "
-                      title="Edit category"
+                      title="Replace image"
                     >
                       <Pencil
                         size={17}
@@ -826,13 +765,13 @@ const AdminCategories = () => {
 
                 <h2 className="text-xl font-bold">
                   {editingId
-                    ? "Edit Category"
+                    ? "Replace Category Image"
                     : "Add Category"}
                 </h2>
 
                 <p className="text-xs text-gray-500 mt-1">
                   {editingId
-                    ? "Update category details and image."
+                    ? "The category name is fixed once created — upload a new image to replace the current one."
                     : "Create a new customer category."}
                 </p>
 
@@ -878,12 +817,12 @@ const AdminCategories = () => {
 
                 <input
                   type="text"
-                  value={form.name}
+                  value={form.categoryName}
                   onChange={
                     handleNameChange
                   }
                   placeholder="e.g. Beer"
-                  disabled={saving}
+                  disabled={saving || Boolean(editingId)}
                   className="
                     w-full
                     bg-black
@@ -1039,38 +978,6 @@ const AdminCategories = () => {
                 </div>
 
               )}
-
-              {/* ACTIVE */}
-
-              <label
-                className="
-                  flex
-                  items-center
-                  gap-3
-                  cursor-pointer
-                  select-none
-                "
-              >
-
-                <input
-                  type="checkbox"
-                  checked={form.active}
-                  onChange={
-                    handleActiveChange
-                  }
-                  disabled={saving}
-                  className="
-                    w-4
-                    h-4
-                    accent-yellow-500
-                  "
-                />
-
-                <span className="text-sm text-gray-300">
-                  Active category
-                </span>
-
-              </label>
 
               {/* BUTTONS */}
 

@@ -1,8 +1,23 @@
-import React from 'react'
-import categoryData from "../../data/categories";
+import React, { useEffect, useState } from 'react'
+import { getCategories } from "../../api/categoryApi";
 import CategoryCard from "../common/CategoryCard";
 
 const CategorySection = () => {
+  const [categoryData, setCategoryData] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategoryData(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Category loading error:", err);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
   return (
     <section className="bg-black py-14">
 

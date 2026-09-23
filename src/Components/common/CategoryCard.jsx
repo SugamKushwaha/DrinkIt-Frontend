@@ -1,81 +1,36 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const CategoryCard = ({ item }) => {
   const navigate = useNavigate();
 
+  const categoryName = item?.categoryName || "";
+  const imageUrl = item?.imageUrl || "";
+
   const handleClick = () => {
+    if (!categoryName) return;
+
     navigate(
-      `/shop?category=${encodeURIComponent(
-        item.title
-      )}`
+      `/shop?category=${encodeURIComponent(categoryName)}`
     );
   };
 
   return (
     <div
       onClick={handleClick}
-      className="
-        group
-        relative
-        overflow-hidden
-        rounded-xl
-        border
-        border-gray-700
-        bg-[#111]
-        cursor-pointer
-        hover:border-yellow-500/50
-        transition
-      "
+      className="group relative overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 cursor-pointer"
     >
-
-      {/* IMAGE */}
-
       <img
-        src={item.image}
-        alt={item.title}
-        onError={(e) => {
-          e.currentTarget.src =
-            "/images/category-placeholder.png";
-        }}
-        className="
-          h-52
-          w-full
-          object-cover
-          transition
-          duration-500
-          group-hover:scale-105
-        "
+        src={imageUrl}
+        alt={categoryName}
+        className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-110"
       />
 
-      {/* OVERLAY */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
-      <div
-        className="
-          absolute
-          inset-0
-          bg-gradient-to-t
-          from-black
-          via-black/20
-          to-transparent
-        "
-      />
-
-      {/* TITLE */}
-
-      <h2
-        className="
-          absolute
-          top-5
-          left-5
-          text-3xl
-          font-extrabold
-          uppercase
-          text-white
-        "
-      >
-        {item.title}
-      </h2>
-
+      <h3 className="absolute top-5 left-5 text-3xl font-bold uppercase text-white">
+        {categoryName}
+      </h3>
     </div>
   );
 };

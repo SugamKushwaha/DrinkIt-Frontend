@@ -166,3 +166,12 @@ export const getProductsByCategory =
 
     return response.data;
   };
+
+
+export const getPopularProducts = async () => {
+
+  const response =
+    await api.get("/products/popular");
+
+  return response.data;
+};
